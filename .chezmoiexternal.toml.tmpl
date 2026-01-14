@@ -1,4 +1,4 @@
-{{- if .installZsh }}
+{{- if and (hasKey . "installZsh") .installZsh }}
 # Oh-My-Zsh
 [".oh-my-zsh"]
     type = "archive"
@@ -30,7 +30,7 @@
     refreshPeriod = "168h"
 {{- end }}
 
-{{- if .installNeovim }}
+{{- if and (hasKey . "installNeovim") .installNeovim }}
 # Neovim config (jelvim)
 [".config/nvim"]
     type = "git-repo"
@@ -38,7 +38,7 @@
     refreshPeriod = "168h"
 {{- end }}
 
-{{- if .installTmux }}
+{{- if and (hasKey . "installTmux") .installTmux }}
 # Tmux Plugin Manager
 [".tmux/plugins/tpm"]
     type = "git-repo"

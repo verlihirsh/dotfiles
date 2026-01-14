@@ -1,4 +1,4 @@
-{{- if .installCliTools -}}
+{{- if and (hasKey . "installCliTools") .installCliTools -}}
 #!/usr/bin/env bash
 # chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
 #

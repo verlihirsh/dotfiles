@@ -1,4 +1,4 @@
-{{- if .installNode -}}
+{{- if and (hasKey . "installNode") .installNode -}}
 #!/usr/bin/env bash
 # chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
 #

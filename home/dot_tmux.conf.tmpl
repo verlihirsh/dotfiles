@@ -1,4 +1,4 @@
-{{- if .installTmux -}}
+{{- if and (hasKey . "installTmux") .installTmux -}}
 # ~/.tmux.conf - managed by chezmoi
 
 # =============================================================================

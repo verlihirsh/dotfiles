@@ -8,7 +8,7 @@
     defaultBranch = main
 
 [core]
-    editor = {{ .editor }}
+    editor = {{ if hasKey . "editor" }}{{ .editor }}{{ else }}vim{{ end }}
     autocrlf = input
     excludesfile = ~/.gitignore_global
     pager = delta

@@ -1,4 +1,4 @@
-{{- if .installNeovim -}}
+{{- if and (hasKey . "installNeovim") .installNeovim -}}
 #!/usr/bin/env bash
 # chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
 #

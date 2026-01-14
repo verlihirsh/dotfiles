@@ -1,4 +1,4 @@
-{{- if .installPython -}}
+{{- if and (hasKey . "installPython") .installPython -}}
 #!/usr/bin/env bash
 # chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
 #
