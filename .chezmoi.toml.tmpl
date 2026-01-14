@@ -1,0 +1,47 @@
+{{- /* User identity */ -}}
+{{- $name := promptStringOnce . "name" "Your full name" -}}
+{{- $email := promptStringOnce . "email" "Your email address" -}}
+
+{{- /* Tool selections */ -}}
+{{- $installZsh := promptBoolOnce . "installZsh" "Install zsh + oh-my-zsh" -}}
+{{- $installPython := promptBoolOnce . "installPython" "Install Python via pyenv" -}}
+{{- $installNode := promptBoolOnce . "installNode" "Install Node.js via fnm" -}}
+{{- $installNeovim := promptBoolOnce . "installNeovim" "Install Neovim with jelvim config" -}}
+{{- $installCliTools := promptBoolOnce . "installCliTools" "Install CLI tools (fzf, ripgrep, fd, bat, etc.)" -}}
+{{- $installTmux := promptBoolOnce . "installTmux" "Install and configure tmux" -}}
+{{- $installDirenv := promptBoolOnce . "installDirenv" "Install direnv" -}}
+
+{{- /* Version preferences */ -}}
+{{- $pythonVersion := "3.12" -}}
+{{- $nodeVersion := "22" -}}
+{{- if $installPython -}}
+{{-   $pythonVersion = promptStringOnce . "pythonVersion" "Python version (e.g., 3.12)" -}}
+{{- end -}}
+{{- if $installNode -}}
+{{-   $nodeVersion = promptStringOnce . "nodeVersion" "Node.js version (e.g., 22)" -}}
+{{- end -}}
+
+{{- /* Editor preference */ -}}
+{{- $editor := promptStringOnce . "editor" "Default editor (nvim/vim/code)" -}}
+
+[data]
+    name = {{ $name | quote }}
+    email = {{ $email | quote }}
+    editor = {{ $editor | quote }}
+    
+    # Tool installations
+    installZsh = {{ $installZsh }}
+    installPython = {{ $installPython }}
+    installNode = {{ $installNode }}
+    installNeovim = {{ $installNeovim }}
+    installCliTools = {{ $installCliTools }}
+    installTmux = {{ $installTmux }}
+    installDirenv = {{ $installDirenv }}
+    
+    # Versions
+    pythonVersion = {{ $pythonVersion | quote }}
+    nodeVersion = {{ $nodeVersion | quote }}
+
+[git]
+    autoCommit = false
+    autoPush = false

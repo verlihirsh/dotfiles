@@ -1,0 +1,39 @@
+{{- if .installNeovim -}}
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
+#
+# Post-install setup for Neovim
+# Neovim is installed via system deps script
+# jelvim config is installed via .chezmoiexternal.toml
+#
+# Version: 1.0.0
+
+set -euo pipefail
+
+echo "==> Configuring Neovim..."
+
+# Ensure nvim is available
+if ! command -v nvim &>/dev/null; then
+    echo "Neovim not found in PATH. It should be installed via system dependencies."
+    echo "Skipping Neovim configuration."
+    exit 0
+fi
+
+# Create necessary directories
+mkdir -p "$HOME/.local/share/nvim"
+mkdir -p "$HOME/.cache/nvim"
+
+# jelvim config is installed via .chezmoiexternal.toml to ~/.config/nvim
+
+echo "Neovim version: $(nvim --version | head -1)"
+echo "Config location: ~/.config/nvim (jelvim)"
+
+# Run plugin installation on first launch (headless)
+if [[ -f "$HOME/.config/nvim/init.lua" ]]; then
+    echo "Running initial plugin sync (this may take a moment)..."
+    # Try lazy.nvim sync if using lazy
+    nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+fi
+
+echo "==> Neovim configured!"
+{{- end }}

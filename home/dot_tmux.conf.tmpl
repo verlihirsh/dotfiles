@@ -1,0 +1,117 @@
+{{- if .installTmux -}}
+# ~/.tmux.conf - managed by chezmoi
+
+# =============================================================================
+# General Settings
+# =============================================================================
+
+# True color support
+set -g default-terminal "screen-256color"
+set -ga terminal-overrides ",*256col*:Tc"
+
+# Mouse support
+set -g mouse on
+
+# History
+set -g history-limit 50000
+
+# Faster command sequences
+set -sg escape-time 0
+
+# Display time
+set -g display-time 4000
+
+# Status refresh
+set -g status-interval 5
+
+# Focus events
+set -g focus-events on
+
+# =============================================================================
+# Window/Pane Settings
+# =============================================================================
+
+# Start indexing from 1
+set -g base-index 1
+setw -g pane-base-index 1
+
+# Renumber windows when one is closed
+set -g renumber-windows on
+
+# =============================================================================
+# Key Bindings
+# =============================================================================
+
+# Change prefix to Ctrl-a (like screen)
+unbind C-b
+set -g prefix C-a
+bind C-a send-prefix
+
+# Split panes with | and -
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+unbind '"'
+unbind %
+
+# Vim-like pane navigation
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+# Vim-like pane resizing
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+# Reload config
+bind r source-file ~/.tmux.conf \; display "Config reloaded!"
+
+# New window in current path
+bind c new-window -c "#{pane_current_path}"
+
+# =============================================================================
+# Status Bar
+# =============================================================================
+
+set -g status-style 'bg=#333333 fg=#ffffff'
+set -g status-position bottom
+set -g status-justify left
+set -g status-left-length 40
+set -g status-right-length 50
+
+set -g status-left '#[fg=#00ff00,bold]#S #[fg=#ffffff]| '
+set -g status-right '#[fg=#888888]%Y-%m-%d #[fg=#ffffff]%H:%M'
+
+# Window status
+setw -g window-status-format ' #I:#W '
+setw -g window-status-current-format '#[fg=#00ff00,bold] #I:#W '
+
+# =============================================================================
+# Pane Border
+# =============================================================================
+
+set -g pane-border-style 'fg=#444444'
+set -g pane-active-border-style 'fg=#00ff00'
+
+# =============================================================================
+# Plugins (via TPM)
+# =============================================================================
+
+# Plugin manager
+set -g @plugin 'tmux-plugins/tpm'
+
+# Sensible defaults
+set -g @plugin 'tmux-plugins/tmux-sensible'
+
+# Persist sessions across restarts
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+
+# Enable auto-restore
+set -g @continuum-restore 'on'
+
+# Initialize TPM (keep at the bottom)
+run '~/.tmux/plugins/tpm/tpm'
+{{- end }}
