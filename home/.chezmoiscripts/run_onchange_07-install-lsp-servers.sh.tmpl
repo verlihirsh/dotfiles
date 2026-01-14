@@ -4,7 +4,7 @@
 #
 # Install LSP servers for Neovim/editors
 #
-# Version: 1.0.0
+# Version: 1.0.1
 
 set -euo pipefail
 
@@ -12,6 +12,15 @@ echo "==> Installing LSP servers..."
 
 # Ensure ~/.local/bin exists
 mkdir -p "$HOME/.local/bin"
+
+# =============================================================================
+# Initialize fnm/node if available (needed for npm-based LSPs)
+# =============================================================================
+
+export PATH="$HOME/.local/share/fnm:$PATH"
+if command -v fnm &>/dev/null; then
+    eval "$(fnm env)"
+fi
 
 # =============================================================================
 # Python LSPs (via uv)
