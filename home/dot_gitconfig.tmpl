@@ -1,14 +1,14 @@
 # ~/.gitconfig - managed by chezmoi
 
 [user]
-    name = {{ .name | quote }}
-    email = {{ .email | quote }}
+    name = {{ index . "name" | default "User" | quote }}
+    email = {{ index . "email" | default "user@example.com" | quote }}
 
 [init]
     defaultBranch = main
 
 [core]
-    editor = {{ if hasKey . "editor" }}{{ .editor }}{{ else }}vim{{ end }}
+    editor = {{ index . "editor" | default "vim" }}
     autocrlf = input
     excludesfile = ~/.gitignore_global
     pager = delta

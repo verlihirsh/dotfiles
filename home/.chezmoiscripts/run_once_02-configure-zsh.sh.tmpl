@@ -1,4 +1,4 @@
-{{- if and (hasKey . "installZsh") .installZsh -}}
+{{- if (index . "installZsh" | default false) -}}
 #!/usr/bin/env bash
 #
 # Configure zsh as default shell

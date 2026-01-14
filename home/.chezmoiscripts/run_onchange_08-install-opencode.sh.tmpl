@@ -1,4 +1,4 @@
-{{- if and (hasKey . "installOpencode") .installOpencode -}}
+{{- if (index . "installOpencode" | default false) -}}
 #!/usr/bin/env bash
 #
 # Install OpenCode (AI coding assistant)

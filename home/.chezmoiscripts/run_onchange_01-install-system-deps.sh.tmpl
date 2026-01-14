@@ -1,4 +1,4 @@
-{{- if or (and (hasKey . "installZsh") .installZsh) (and (hasKey . "installPython") .installPython) (and (hasKey . "installNode") .installNode) (and (hasKey . "installNeovim") .installNeovim) (and (hasKey . "installCliTools") .installCliTools) -}}
+{{- if or (index . "installZsh" | default false) (index . "installPython" | default false) (index . "installNode" | default false) (index . "installNeovim" | default false) (index . "installCliTools" | default false) -}}
 #!/usr/bin/env bash
 # chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
 #

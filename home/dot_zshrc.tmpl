@@ -4,7 +4,7 @@
 # =============================================================================
 # Oh-My-Zsh Configuration
 # =============================================================================
-{{- if and (hasKey . "installZsh") .installZsh }}
+{{- if (index . "installZsh" | default false) }}
 
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -30,8 +30,8 @@ plugins=(
 # Environment Variables
 # =============================================================================
 
-export EDITOR="{{ if hasKey . "editor" }}{{ .editor }}{{ else }}vim{{ end }}"
-export VISUAL="{{ if hasKey . "editor" }}{{ .editor }}{{ else }}vim{{ end }}"
+export EDITOR="{{ index . "editor" | default "vim" }}"
+export VISUAL="{{ index . "editor" | default "vim" }}"
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 
@@ -59,7 +59,7 @@ fi
 # =============================================================================
 # Tool Initialization
 # =============================================================================
-{{- if and (hasKey . "installPython") .installPython }}
+{{- if (index . "installPython" | default false) }}
 
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"
@@ -70,7 +70,7 @@ if command -v pyenv &>/dev/null; then
 fi
 {{- end }}
 
-{{- if and (hasKey . "installNode") .installNode }}
+{{- if (index . "installNode" | default false) }}
 
 # fnm (Fast Node Manager)
 export PATH="$HOME/.local/share/fnm:$PATH"
@@ -79,7 +79,7 @@ if command -v fnm &>/dev/null; then
 fi
 {{- end }}
 
-{{- if and (hasKey . "installDirenv") .installDirenv }}
+{{- if (index . "installDirenv" | default false) }}
 
 # direnv
 if command -v direnv &>/dev/null; then
@@ -90,7 +90,7 @@ fi
 # =============================================================================
 # CLI Tool Configuration
 # =============================================================================
-{{- if and (hasKey . "installCliTools") .installCliTools }}
+{{- if (index . "installCliTools" | default false) }}
 
 # fzf
 if command -v fzf &>/dev/null; then
@@ -155,7 +155,7 @@ alias c='clear'
 alias h='history'
 alias j='jobs -l'
 
-{{- if and (hasKey . "installNeovim") .installNeovim }}
+{{- if (index . "installNeovim" | default false) }}
 alias vim='nvim'
 alias vi='nvim'
 {{- end }}
