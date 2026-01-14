@@ -1,6 +1,9 @@
-{{- if (index . "installNeovim" | default false) -}}
 #!/usr/bin/env bash
 # chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
+# {{ if not (index . "installNeovim" | default false) }}
+# Skip - Neovim not enabled
+exit 0
+# {{ end }}
 #
 # Post-install setup for Neovim
 # Neovim is installed via system deps script
@@ -36,4 +39,3 @@ if [[ -f "$HOME/.config/nvim/init.lua" ]]; then
 fi
 
 echo "==> Neovim configured!"
-{{- end }}

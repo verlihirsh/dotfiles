@@ -1,5 +1,9 @@
-{{- if (index . "installOpencode" | default false) -}}
 #!/usr/bin/env bash
+# chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
+# {{ if not (index . "installOpencode" | default false) }}
+# Skip - OpenCode not enabled
+exit 0
+# {{ end }}
 #
 # Install OpenCode (AI coding assistant)
 #
@@ -38,4 +42,3 @@ else
     echo "⚠️  OpenCode installation may have failed. Try manually:"
     echo "   npm install -g @anthropics/opencode"
 fi
-{{- end }}

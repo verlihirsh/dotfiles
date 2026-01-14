@@ -1,6 +1,9 @@
-{{- if (index . "installLspServers" | default false) -}}
 #!/usr/bin/env bash
 # chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
+# {{ if not (index . "installLspServers" | default false) }}
+# Skip - LSP servers not enabled
+exit 0
+# {{ end }}
 #
 # Install LSP servers for Neovim/editors
 #
@@ -236,4 +239,3 @@ command -v docker-langserver &>/dev/null && echo "  ✓ dockerfile-language-serv
 command -v marksman &>/dev/null && echo "  ✓ marksman (Markdown)"
 
 echo ""
-{{- end }}

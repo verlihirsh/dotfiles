@@ -1,6 +1,9 @@
-{{- if (index . "installCliTools" | default false) -}}
 #!/usr/bin/env bash
 # chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
+# {{ if not (index . "installCliTools" | default false) }}
+# Skip - CLI tools not enabled
+exit 0
+# {{ end }}
 #
 # Install CLI tools (fzf, ripgrep, fd, bat, etc.)
 #
@@ -110,4 +113,3 @@ command -v jq &>/dev/null && echo "  - jq: $(jq --version 2>/dev/null)"
 command -v uv &>/dev/null && echo "  - uv: $(uv --version 2>/dev/null)"
 
 echo "==> CLI tools installed!"
-{{- end }}

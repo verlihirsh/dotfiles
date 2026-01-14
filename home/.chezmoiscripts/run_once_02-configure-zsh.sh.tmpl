@@ -1,5 +1,9 @@
-{{- if (index . "installZsh" | default false) -}}
 #!/usr/bin/env bash
+# chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
+# {{ if not (index . "installZsh" | default false) }}
+# Skip - zsh not enabled
+exit 0
+# {{ end }}
 #
 # Configure zsh as default shell
 # oh-my-zsh is installed via .chezmoiexternal.toml
@@ -32,4 +36,3 @@ else
 fi
 
 echo "==> zsh configured!"
-{{- end }}

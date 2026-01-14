@@ -1,6 +1,9 @@
-{{- if (index . "installNode" | default false) -}}
 #!/usr/bin/env bash
 # chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
+# {{ if not (index . "installNode" | default false) }}
+# Skip - Node not enabled
+exit 0
+# {{ end }}
 #
 # Install fnm and Node.js
 # Runs when Node version changes
@@ -41,4 +44,3 @@ echo "Node.js version: $(node --version)"
 echo "npm version: $(npm --version)"
 
 echo "==> Node.js setup complete!"
-{{- end }}

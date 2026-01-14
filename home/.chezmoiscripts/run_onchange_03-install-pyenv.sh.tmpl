@@ -1,6 +1,9 @@
-{{- if (index . "installPython" | default false) -}}
 #!/usr/bin/env bash
 # chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
+# {{ if not (index . "installPython" | default false) }}
+# Skip - Python not enabled
+exit 0
+# {{ end }}
 #
 # Install pyenv and Python
 # Runs when Python version changes
@@ -42,4 +45,3 @@ echo "Python version: $(pyenv exec python --version)"
 echo "pip version: $(pyenv exec pip --version)"
 
 echo "==> Python setup complete!"
-{{- end }}
