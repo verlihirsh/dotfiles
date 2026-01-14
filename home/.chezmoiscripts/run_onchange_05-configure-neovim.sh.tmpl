@@ -9,7 +9,8 @@ exit 0
 # Neovim is installed via system deps script
 # jelvim config is installed via .chezmoiexternal.toml
 #
-# Version: 1.0.0
+# Version: 1.1.0 - Added LSP extras integration
+# Hash: # {{ include "dot_config/nvim-lsp-extras/lsp-extras.lua.tmpl" | sha256sum }}
 
 set -euo pipefail
 
@@ -30,6 +31,25 @@ mkdir -p "$HOME/.cache/nvim"
 
 echo "Neovim version: $(nvim --version | head -1)"
 echo "Config location: ~/.config/nvim (jelvim)"
+
+# Install LSP extras plugin (extends jelvim with additional LSP servers)
+# {{ if (index . "installLspServers" | default false) }}
+LSP_EXTRAS_SRC="$HOME/.config/nvim-lsp-extras/lsp-extras.lua"
+LSP_EXTRAS_DST="$HOME/.config/nvim/lua/plugins/lsp-extras.lua"
+
+if [[ -f "$LSP_EXTRAS_SRC" ]]; then
+    # Ensure plugins directory exists
+    mkdir -p "$HOME/.config/nvim/lua/plugins"
+    
+    # Copy LSP extras (not symlink - keeps jelvim git clean)
+    cp "$LSP_EXTRAS_SRC" "$LSP_EXTRAS_DST"
+    echo "Installed LSP extras plugin: $LSP_EXTRAS_DST"
+else
+    echo "Warning: LSP extras source not found at $LSP_EXTRAS_SRC"
+fi
+# {{ else }}
+echo "LSP servers not enabled, skipping LSP extras plugin"
+# {{ end }}
 
 # Run plugin installation on first launch (headless)
 if [[ -f "$HOME/.config/nvim/init.lua" ]]; then
