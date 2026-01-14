@@ -10,6 +10,7 @@
 {{- $installCliTools := promptBoolOnce . "installCliTools" "Install CLI tools (fzf, ripgrep, fd, bat, etc.)" -}}
 {{- $installTmux := promptBoolOnce . "installTmux" "Install and configure tmux" -}}
 {{- $installDirenv := promptBoolOnce . "installDirenv" "Install direnv" -}}
+{{- $installLspServers := promptBoolOnce . "installLspServers" "Install LSP servers (for Neovim/editors)" -}}
 
 {{- /* Version preferences */ -}}
 {{- $pythonVersion := "3.12" -}}
@@ -24,6 +25,9 @@
 {{- /* Editor preference */ -}}
 {{- $editor := promptStringOnce . "editor" "Default editor (nvim/vim/code)" -}}
 
+{{- /* Secrets path (optional - for copying SSH keys, API tokens, etc.) */ -}}
+{{- $secretsPath := promptStringOnce . "secretsPath" "Path to secrets folder (leave empty to skip)" -}}
+
 [data]
     name = {{ $name | quote }}
     email = {{ $email | quote }}
@@ -37,10 +41,14 @@
     installCliTools = {{ $installCliTools }}
     installTmux = {{ $installTmux }}
     installDirenv = {{ $installDirenv }}
+    installLspServers = {{ $installLspServers }}
     
     # Versions
     pythonVersion = {{ $pythonVersion | quote }}
     nodeVersion = {{ $nodeVersion | quote }}
+    
+    # Secrets
+    secretsPath = {{ $secretsPath | quote }}
 
 [git]
     autoCommit = false

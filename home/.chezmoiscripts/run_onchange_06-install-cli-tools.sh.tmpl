@@ -15,7 +15,7 @@ echo "==> Installing CLI tools..."
 # macOS: Use Homebrew
 if command -v brew &>/dev/null; then
     echo "Installing CLI tools via Homebrew..."
-    brew install fzf ripgrep fd bat eza jq htop tree || true
+    brew install fzf ripgrep fd bat eza jq htop tree uv || true
     
     # Install fzf key bindings and completion
     "$(brew --prefix)/opt/fzf/install" --key-bindings --completion --no-update-rc --no-bash --no-fish 2>/dev/null || true
@@ -43,6 +43,12 @@ case "$PKG_MANAGER" in
         sudo apt-get update -qq
         sudo apt-get install -y -qq fzf ripgrep fd-find bat jq htop tree curl wget || true
         
+        # Install uv
+        if ! command -v uv &>/dev/null; then
+            echo "Installing uv..."
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+        fi
+        
         # Create symlinks for fd and bat (Debian/Ubuntu use different names)
         mkdir -p "$HOME/.local/bin"
         if command -v fdfind &>/dev/null && [[ ! -L "$HOME/.local/bin/fd" ]]; then
@@ -64,6 +70,12 @@ case "$PKG_MANAGER" in
         echo "Installing CLI tools via dnf..."
         sudo dnf install -y -q fzf ripgrep fd-find bat jq htop tree || true
         
+        # Install uv
+        if ! command -v uv &>/dev/null; then
+            echo "Installing uv..."
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+        fi
+        
         # eza may not be in standard repos
         if ! command -v eza &>/dev/null; then
             echo "Installing eza from GitHub..."
@@ -75,7 +87,7 @@ case "$PKG_MANAGER" in
         
     pacman)
         echo "Installing CLI tools via pacman..."
-        sudo pacman -S --noconfirm --needed fzf ripgrep fd bat eza jq htop tree || true
+        sudo pacman -S --noconfirm --needed fzf ripgrep fd bat eza jq htop tree uv || true
         ;;
 esac
 
@@ -95,6 +107,7 @@ command -v fd &>/dev/null && echo "  - fd: $(fd --version 2>/dev/null)"
 command -v bat &>/dev/null && echo "  - bat: $(bat --version 2>/dev/null)"
 command -v eza &>/dev/null && echo "  - eza: $(eza --version 2>/dev/null | head -1)"
 command -v jq &>/dev/null && echo "  - jq: $(jq --version 2>/dev/null)"
+command -v uv &>/dev/null && echo "  - uv: $(uv --version 2>/dev/null)"
 
 echo "==> CLI tools installed!"
 {{- end }}

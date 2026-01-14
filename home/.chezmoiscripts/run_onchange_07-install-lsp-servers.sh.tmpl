@@ -1,0 +1,230 @@
+{{- if .installLspServers -}}
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
+#
+# Install LSP servers for Neovim/editors
+#
+# Version: 1.0.0
+
+set -euo pipefail
+
+echo "==> Installing LSP servers..."
+
+# Ensure ~/.local/bin exists
+mkdir -p "$HOME/.local/bin"
+
+# =============================================================================
+# Python LSPs (via uv)
+# =============================================================================
+
+install_python_lsp() {
+    local name="$1"
+    local package="$2"
+    
+    if command -v uv &>/dev/null; then
+        echo "Installing $name via uv..."
+        uv tool install "$package" || true
+    else
+        echo "⚠️  uv not found, skipping $name"
+    fi
+}
+
+echo ""
+echo "📦 Python-based LSP servers..."
+
+# Pyright - Fast Python type checker and LSP
+install_python_lsp "pyright" "pyright"
+
+# Ruff - Fast Python linter and formatter with LSP
+install_python_lsp "ruff" "ruff"
+
+# Python LSP Server (alternative to pyright, more feature-rich)
+install_python_lsp "python-lsp-server" "python-lsp-server[all]"
+
+# =============================================================================
+# JavaScript/TypeScript LSPs (via npm)
+# =============================================================================
+
+install_npm_lsp() {
+    local name="$1"
+    local package="$2"
+    
+    if command -v npm &>/dev/null; then
+        echo "Installing $name via npm..."
+        npm install -g "$package" 2>/dev/null || true
+    else
+        echo "⚠️  npm not found, skipping $name"
+    fi
+}
+
+echo ""
+echo "📦 JavaScript/TypeScript LSP servers..."
+
+# TypeScript Language Server
+install_npm_lsp "typescript-language-server" "typescript-language-server"
+install_npm_lsp "typescript" "typescript"
+
+# Volar (Vue)
+install_npm_lsp "vue-language-server" "@vue/language-server"
+
+# Svelte
+install_npm_lsp "svelte-language-server" "svelte-language-server"
+
+# ESLint LSP
+install_npm_lsp "eslint-lsp" "vscode-langservers-extracted"
+
+# Tailwind CSS
+install_npm_lsp "tailwindcss-language-server" "@tailwindcss/language-server"
+
+# JSON, HTML, CSS (from vscode-langservers-extracted - already installed above)
+
+# Emmet
+install_npm_lsp "emmet-ls" "emmet-ls"
+
+# Prettier (formatter)
+install_npm_lsp "prettier" "prettier"
+
+# =============================================================================
+# Go LSP
+# =============================================================================
+
+echo ""
+echo "📦 Go LSP server..."
+
+if command -v go &>/dev/null; then
+    echo "Installing gopls via go install..."
+    go install golang.org/x/tools/gopls@latest || true
+else
+    echo "⚠️  go not found, skipping gopls"
+fi
+
+# =============================================================================
+# Lua LSP
+# =============================================================================
+
+echo ""
+echo "📦 Lua LSP server..."
+
+# {{- if eq .chezmoi.os "darwin" }}
+
+if command -v brew &>/dev/null; then
+    echo "Installing lua-language-server via Homebrew..."
+    brew install lua-language-server || true
+fi
+
+# {{- else if eq .chezmoi.os "linux" }}
+
+# Install from GitHub releases
+if ! command -v lua-language-server &>/dev/null; then
+    echo "Installing lua-language-server from GitHub..."
+    
+    LUA_LS_VERSION=$(curl -s "https://api.github.com/repos/LuaLS/lua-language-server/releases/latest" | grep -Po '"tag_name": "\K[^"]*' || echo "3.7.4")
+    
+    # {{- if eq .chezmoi.arch "arm64" }}
+    ARCH="linux-arm64"
+    # {{- else }}
+    ARCH="linux-x64"
+    # {{- end }}
+    
+    mkdir -p "$HOME/.local/share/lua-language-server"
+    curl -fsSL "https://github.com/LuaLS/lua-language-server/releases/download/${LUA_LS_VERSION}/lua-language-server-${LUA_LS_VERSION}-${ARCH}.tar.gz" | \
+        tar -xz -C "$HOME/.local/share/lua-language-server" 2>/dev/null || true
+    
+    # Create wrapper script
+    cat > "$HOME/.local/bin/lua-language-server" << 'WRAPPER'
+#!/bin/bash
+exec "$HOME/.local/share/lua-language-server/bin/lua-language-server" "$@"
+WRAPPER
+    chmod +x "$HOME/.local/bin/lua-language-server"
+fi
+
+# {{- end }}
+
+# =============================================================================
+# Bash LSP
+# =============================================================================
+
+echo ""
+echo "📦 Bash LSP server..."
+
+install_npm_lsp "bash-language-server" "bash-language-server"
+
+# =============================================================================
+# YAML LSP
+# =============================================================================
+
+echo ""
+echo "📦 YAML LSP server..."
+
+install_npm_lsp "yaml-language-server" "yaml-language-server"
+
+# =============================================================================
+# Docker LSP
+# =============================================================================
+
+echo ""
+echo "📦 Docker LSP server..."
+
+install_npm_lsp "dockerfile-language-server" "dockerfile-language-server-nodejs"
+
+# =============================================================================
+# Markdown LSP
+# =============================================================================
+
+echo ""
+echo "📦 Markdown LSP server..."
+
+install_npm_lsp "marksman" "marksman"
+
+# Actually marksman is better installed via binary
+# {{- if eq .chezmoi.os "darwin" }}
+if command -v brew &>/dev/null; then
+    brew install marksman 2>/dev/null || true
+fi
+# {{- else if eq .chezmoi.os "linux" }}
+if ! command -v marksman &>/dev/null; then
+    echo "Installing marksman from GitHub..."
+    MARKSMAN_VERSION=$(curl -s "https://api.github.com/repos/artempyanykh/marksman/releases/latest" | grep -Po '"tag_name": "\K[^"]*' || echo "2023-12-09")
+    
+    # {{- if eq .chezmoi.arch "arm64" }}
+    MARKSMAN_ARCH="linux-arm64"
+    # {{- else }}
+    MARKSMAN_ARCH="linux-x64"
+    # {{- end }}
+    
+    curl -fsSL "https://github.com/artempyanykh/marksman/releases/download/${MARKSMAN_VERSION}/marksman-${MARKSMAN_ARCH}" -o "$HOME/.local/bin/marksman" 2>/dev/null || true
+    chmod +x "$HOME/.local/bin/marksman" 2>/dev/null || true
+fi
+# {{- end }}
+
+# =============================================================================
+# Summary
+# =============================================================================
+
+echo ""
+echo "==> LSP servers installation complete!"
+echo ""
+echo "Installed LSP servers:"
+
+# Python
+command -v pyright &>/dev/null && echo "  ✓ pyright (Python)"
+command -v ruff &>/dev/null && echo "  ✓ ruff (Python linter/formatter)"
+command -v pylsp &>/dev/null && echo "  ✓ python-lsp-server"
+
+# JS/TS
+command -v typescript-language-server &>/dev/null && echo "  ✓ typescript-language-server"
+command -v vue-language-server &>/dev/null && echo "  ✓ vue-language-server"
+command -v svelteserver &>/dev/null && echo "  ✓ svelte-language-server"
+command -v vscode-eslint-language-server &>/dev/null && echo "  ✓ eslint-lsp"
+command -v tailwindcss-language-server &>/dev/null && echo "  ✓ tailwindcss-language-server"
+
+# Others
+command -v gopls &>/dev/null && echo "  ✓ gopls (Go)"
+command -v lua-language-server &>/dev/null && echo "  ✓ lua-language-server"
+command -v bash-language-server &>/dev/null && echo "  ✓ bash-language-server"
+command -v yaml-language-server &>/dev/null && echo "  ✓ yaml-language-server"
+command -v docker-langserver &>/dev/null && echo "  ✓ dockerfile-language-server"
+command -v marksman &>/dev/null && echo "  ✓ marksman (Markdown)"
+
+echo ""
+{{- end }}
