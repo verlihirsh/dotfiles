@@ -8,13 +8,13 @@ exit 0
 # Install pyenv and Python
 # Runs when Python version changes
 #
-# Python version: # {{ .pythonVersion }}
+# Python version: # {{ index . "pythonVersion" | default "3.12" }}
 
 set -euo pipefail
 
 echo "==> Setting up Python via pyenv..."
 
-PYTHON_VERSION="# {{ .pythonVersion }}"
+PYTHON_VERSION="# {{ index . "pythonVersion" | default "3.12" }}"
 
 # Install pyenv if not present
 if [[ ! -d "$HOME/.pyenv" ]]; then
