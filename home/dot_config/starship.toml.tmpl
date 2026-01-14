@@ -1,0 +1,73 @@
+{{- if (index . "installStarship" | default false) -}}
+# Starship prompt configuration
+# https://starship.rs/config/
+
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_status\
+$python\
+$nodejs\
+$rust\
+$golang\
+$docker_context\
+$cmd_duration\
+$line_break\
+$character"""
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+style = "bold cyan"
+
+[git_branch]
+symbol = " "
+style = "bold purple"
+
+[git_status]
+style = "bold red"
+format = '([\[$all_status$ahead_behind\]]($style) )'
+
+[python]
+symbol = " "
+style = "bold yellow"
+format = '[${symbol}${pyenv_prefix}(${version})(\($virtualenv\))]($style) '
+
+[nodejs]
+symbol = " "
+style = "bold green"
+format = '[$symbol($version)]($style) '
+
+[rust]
+symbol = " "
+style = "bold orange"
+
+[golang]
+symbol = " "
+style = "bold cyan"
+
+[docker_context]
+symbol = " "
+style = "bold blue"
+
+[cmd_duration]
+min_time = 2000
+style = "bold yellow"
+format = '[$duration]($style) '
+
+[username]
+style_user = "bold blue"
+format = "[$user]($style) "
+show_always = false
+
+[hostname]
+ssh_only = true
+style = "bold green"
+format = "[@$hostname]($style) "
+{{- end }}

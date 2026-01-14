@@ -33,6 +33,12 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply YOUR_GITHUB_USERNAME/dotfil
    chezmoi apply
    ```
 
+3. Verify installation:
+
+   ```bash
+   dotfiles-doctor
+   ```
+
 ## What's Included
 
 ### Tools (Optional, selected during `chezmoi init`)
@@ -40,27 +46,53 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply YOUR_GITHUB_USERNAME/dotfil
 | Tool | Description |
 |------|-------------|
 | **zsh + oh-my-zsh** | Shell with plugins (autosuggestions, syntax highlighting, completions) |
+| **Starship** | Modern cross-shell prompt with git status, language versions, etc. |
+| **Nerd Fonts** | Patched fonts with icons (JetBrainsMono, FiraCode, Hack) |
 | **pyenv** | Python version manager |
 | **fnm** | Fast Node.js version manager |
 | **Neovim** | Editor with jelvim config |
-| **CLI tools** | fzf, ripgrep, fd, bat, eza, jq, htop |
+| **CLI tools** | fzf, ripgrep, fd, bat, eza, jq, htop, uv |
 | **tmux** | Terminal multiplexer with sensible config |
 | **direnv** | Per-directory environment variables |
+| **LSP servers** | Language servers for Python, TypeScript, Go, Lua, Bash, YAML, Docker, Markdown |
+| **OpenCode** | AI-powered coding assistant with oh-my-opencode |
 
 ### Configurations
 
-- `~/.zshrc` - Shell config with tool integrations
-- `~/.gitconfig` - Git config with useful aliases
+- `~/.bashrc` - Common shell config (sourced by both bash and zsh)
+- `~/.zshrc` - Zsh-specific config with oh-my-zsh
+- `~/.gitconfig` - Git config with useful aliases and SSH-first GitHub access
 - `~/.gitignore_global` - Global gitignore
 - `~/.tmux.conf` - tmux config (if enabled)
+- `~/.config/starship.toml` - Starship prompt config (if enabled)
+
+### Secrets Support
+
+Copy your secrets (SSH keys, API tokens, etc.) by providing a path during setup:
+
+```
+secrets-template/
+├── .ssh/
+├── .aws/
+├── .config/gh/
+├── .gnupg/
+├── .netrc
+└── .env
+```
 
 ## Supported Platforms
 
-- **macOS** (Intel & Apple Silicon)
+- **macOS** (Intel & Apple Silicon) - includes sane system defaults
 - **Linux** (Ubuntu, Debian, Fedora, Arch)
 - **WSL** (Windows Subsystem for Linux)
 
 ## Usage
+
+### Verify installation
+
+```bash
+dotfiles-doctor
+```
 
 ### Update dotfiles
 
@@ -101,7 +133,7 @@ chezmoi apply
 
 ### Local overrides
 
-Create `~/.zshrc.local` for machine-specific configuration that won't be tracked:
+Create `~/.zshrc.local` or `~/.bashrc.local` for machine-specific configuration:
 
 ```bash
 # ~/.zshrc.local
@@ -115,8 +147,8 @@ Edit `~/.config/chezmoi/chezmoi.toml`:
 
 ```toml
 [data]
-    pythonVersion = "3.11"
-    nodeVersion = "20"
+    pythonVersion = "3.12"
+    nodeVersion = "22"
 ```
 
 Then run:
@@ -129,22 +161,32 @@ chezmoi apply
 
 ```
 .
-├── .chezmoi.toml.tmpl          # Interactive prompts
-├── .chezmoiexternal.toml.tmpl  # External dependencies (oh-my-zsh, plugins)
-├── .chezmoiignore              # Files to ignore
-├── .chezmoiroot                # Points to home/ subdirectory
 ├── home/
-│   ├── .chezmoiscripts/        # Installation scripts
+│   ├── .chezmoi.toml.tmpl            # Interactive prompts
+│   ├── .chezmoiexternal.toml.tmpl    # External deps (oh-my-zsh, plugins, nvim config)
+│   ├── .chezmoiscripts/
+│   │   ├── run_onchange_00-copy-secrets.sh.tmpl
 │   │   ├── run_onchange_01-install-system-deps.sh.tmpl
 │   │   ├── run_once_02-configure-zsh.sh.tmpl
 │   │   ├── run_onchange_03-install-pyenv.sh.tmpl
 │   │   ├── run_onchange_04-install-fnm.sh.tmpl
 │   │   ├── run_onchange_05-configure-neovim.sh.tmpl
-│   │   └── run_onchange_06-install-cli-tools.sh.tmpl
-│   ├── dot_zshrc.tmpl          # Shell config
-│   ├── dot_gitconfig.tmpl      # Git config
-│   ├── dot_gitignore_global    # Global gitignore
-│   └── dot_tmux.conf.tmpl      # tmux config
+│   │   ├── run_onchange_06-install-cli-tools.sh.tmpl
+│   │   ├── run_onchange_07-install-lsp-servers.sh.tmpl
+│   │   ├── run_onchange_08-install-opencode.sh.tmpl
+│   │   ├── run_onchange_09-install-nerdfonts.sh.tmpl
+│   │   ├── run_onchange_10-install-starship.sh.tmpl
+│   │   └── run_once_11-macos-defaults.sh.tmpl
+│   ├── dot_bashrc.tmpl
+│   ├── dot_zshrc.tmpl
+│   ├── dot_gitconfig.tmpl
+│   ├── dot_tmux.conf.tmpl
+│   ├── dot_config/
+│   │   └── starship.toml.tmpl
+│   └── dot_local/
+│       └── bin/
+│           └── executable_dotfiles-doctor
+├── secrets-template/
 └── README.md
 ```
 

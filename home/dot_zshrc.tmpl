@@ -14,8 +14,12 @@
 
 export ZSH="$HOME/.oh-my-zsh"
 
-# Theme
+# Theme (disabled when using Starship)
+{{- if (index . "installStarship" | default false) }}
+ZSH_THEME=""
+{{- else }}
 ZSH_THEME="robbyrussell"
+{{- end }}
 
 # Plugins
 plugins=(

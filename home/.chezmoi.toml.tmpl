@@ -12,6 +12,8 @@
 {{- $installDirenv := promptBoolOnce . "installDirenv" "Install direnv" -}}
 {{- $installLspServers := promptBoolOnce . "installLspServers" "Install LSP servers (for Neovim/editors)" -}}
 {{- $installOpencode := promptBoolOnce . "installOpencode" "Install OpenCode + oh-my-opencode (AI coding)" -}}
+{{- $installNerdFonts := promptBoolOnce . "installNerdFonts" "Install Nerd Fonts (for terminal icons)" -}}
+{{- $installStarship := promptBoolOnce . "installStarship" "Install Starship prompt (modern cross-shell prompt)" -}}
 
 {{- /* OpenCode subscription options */ -}}
 {{- $opencodeClaudeMax := false -}}
@@ -43,6 +45,16 @@
 {{- /* Secrets path (optional - for copying SSH keys, API tokens, etc.) */ -}}
 {{- $secretsPath := promptStringOnce . "secretsPath" "Path to secrets folder (leave empty to skip)" -}}
 
+{{- /* SSH key generation (if no existing secrets) */ -}}
+{{- $generateSshKey := false -}}
+{{- $sshKeyType := "ed25519" -}}
+{{- if eq $secretsPath "" -}}
+{{-   $generateSshKey = promptBoolOnce . "generateSshKey" "Generate new SSH key pair" -}}
+{{-   if $generateSshKey -}}
+{{-     $sshKeyType = promptStringOnce . "sshKeyType" "SSH key type (ed25519/rsa)" -}}
+{{-   end -}}
+{{- end -}}
+
 [data]
     name = {{ $name | quote }}
     email = {{ $email | quote }}
@@ -58,6 +70,8 @@
     installDirenv = {{ $installDirenv }}
     installLspServers = {{ $installLspServers }}
     installOpencode = {{ $installOpencode }}
+    installNerdFonts = {{ $installNerdFonts }}
+    installStarship = {{ $installStarship }}
     
     # OpenCode subscriptions
     opencodeClaudeMax = {{ $opencodeClaudeMax }}
@@ -71,6 +85,8 @@
     
     # Secrets
     secretsPath = {{ $secretsPath | quote }}
+    generateSshKey = {{ $generateSshKey }}
+    sshKeyType = {{ $sshKeyType | quote }}
 
 [git]
     autoCommit = false

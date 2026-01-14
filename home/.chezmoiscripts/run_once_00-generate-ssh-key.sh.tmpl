@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
+# {{ if not (index . "generateSshKey" | default false) }}
+exit 0
+# {{ end }}
+#
+# Generate new SSH key pair
+#
+# Version: 1.0.0
+
+set -euo pipefail
+
+SSH_DIR="$HOME/.ssh"
+KEY_TYPE="# {{ index . "sshKeyType" | default "ed25519" }}"
+EMAIL="# {{ index . "email" | default "" }}"
+
+if [[ -f "$SSH_DIR/id_$KEY_TYPE" ]]; then
+    echo "==> SSH key already exists: $SSH_DIR/id_$KEY_TYPE"
+    echo "    Skipping generation to avoid overwriting."
+    exit 0
+fi
+
+echo "==> Generating SSH key pair..."
+mkdir -p "$SSH_DIR"
+chmod 700 "$SSH_DIR"
+
+case "$KEY_TYPE" in
+    ed25519)
+        ssh-keygen -t ed25519 -C "$EMAIL" -f "$SSH_DIR/id_ed25519" -N ""
+        ;;
+    rsa)
+        ssh-keygen -t rsa -b 4096 -C "$EMAIL" -f "$SSH_DIR/id_rsa" -N ""
+        ;;
+    *)
+        echo "⚠️  Unknown key type: $KEY_TYPE, defaulting to ed25519"
+        ssh-keygen -t ed25519 -C "$EMAIL" -f "$SSH_DIR/id_ed25519" -N ""
+        ;;
+esac
+
+chmod 600 "$SSH_DIR/id_$KEY_TYPE"
+chmod 644 "$SSH_DIR/id_$KEY_TYPE.pub"
+
+if [[ ! -f "$SSH_DIR/config" ]]; then
+    cat > "$SSH_DIR/config" << 'EOF'
+Host *
+    AddKeysToAgent yes
+    IdentitiesOnly yes
+
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
+EOF
+    chmod 600 "$SSH_DIR/config"
+    echo "    Created default SSH config"
+fi
+
+# Start ssh-agent and add key
+if [[ "$(uname)" == "Darwin" ]]; then
+    ssh-add --apple-use-keychain "$SSH_DIR/id_$KEY_TYPE" 2>/dev/null || \
+        ssh-add "$SSH_DIR/id_$KEY_TYPE" 2>/dev/null || true
+else
+    eval "$(ssh-agent -s)" &>/dev/null || true
+    ssh-add "$SSH_DIR/id_$KEY_TYPE" 2>/dev/null || true
+fi
+
+echo ""
+echo "✅ SSH key generated!"
+echo ""
+echo "Public key ($SSH_DIR/id_$KEY_TYPE.pub):"
+echo "----------------------------------------"
+cat "$SSH_DIR/id_$KEY_TYPE.pub"
+echo "----------------------------------------"
+echo ""
+echo "Add this key to:"
+echo "  GitHub:    https://github.com/settings/ssh/new"
+echo "  GitLab:    https://gitlab.com/-/user_settings/ssh_keys"
+echo "  Bitbucket: https://bitbucket.org/account/settings/ssh-keys/"

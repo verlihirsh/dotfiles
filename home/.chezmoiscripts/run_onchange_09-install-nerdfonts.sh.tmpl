@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
+# {{ if not (index . "installNerdFonts" | default false) }}
+exit 0
+# {{ end }}
+#
+# Install Nerd Fonts and Martian Mono
+#
+# Version: 1.1.0
+
+set -euo pipefail
+
+echo "==> Installing fonts..."
+
+# Nerd Fonts to install
+NERD_FONTS=(
+    "JetBrainsMono"
+    "FiraCode"
+    "Hack"
+    "MartianMono"
+)
+
+# {{- if eq .chezmoi.os "darwin" }}
+
+if command -v brew &>/dev/null; then
+    echo "Installing fonts via Homebrew..."
+    
+    echo "  Installing Martian Mono..."
+    brew install --cask font-martian-mono 2>/dev/null || echo "    ⚠️  Could not install Martian Mono"
+    
+    echo "Installing Nerd Fonts..."
+    for font in "${NERD_FONTS[@]}"; do
+        echo "  Installing $font Nerd Font..."
+        brew install --cask "font-${font,,}-nerd-font" 2>/dev/null || \
+            brew install --cask "font-$(echo "$font" | tr '[:upper:]' '[:lower:]')-nerd-font" 2>/dev/null || \
+            echo "    ⚠️  Could not install $font"
+    done
+else
+    echo "⚠️  Homebrew not found, skipping font installation"
+fi
+
+# {{- else if eq .chezmoi.os "linux" }}
+
+FONT_DIR="$HOME/.local/share/fonts"
+mkdir -p "$FONT_DIR"
+
+echo "Installing Martian Mono..."
+if [[ ! -d "$FONT_DIR/MartianMono" ]] && ! ls "$FONT_DIR"/MartianMono*.ttf &>/dev/null 2>&1; then
+    MARTIAN_URL="https://github.com/evilmartians/mono/releases/latest/download/martian-mono.zip"
+    TMP_DIR=$(mktemp -d)
+    if curl -fsSL "$MARTIAN_URL" -o "$TMP_DIR/martian-mono.zip" 2>/dev/null; then
+        mkdir -p "$FONT_DIR/MartianMono"
+        unzip -q "$TMP_DIR/martian-mono.zip" -d "$TMP_DIR/extracted"
+        find "$TMP_DIR/extracted" -name "*.ttf" -exec cp {} "$FONT_DIR/MartianMono/" \;
+        echo "  ✓ Martian Mono installed"
+    else
+        echo "  ⚠️  Could not download Martian Mono"
+    fi
+    rm -rf "$TMP_DIR"
+else
+    echo "  Martian Mono already installed"
+fi
+
+echo "Installing Nerd Fonts from GitHub releases..."
+for font in "${NERD_FONTS[@]}"; do
+    if [[ -d "$FONT_DIR/$font" ]] || ls "$FONT_DIR"/${font}*.ttf &>/dev/null 2>&1; then
+        echo "  $font already installed"
+        continue
+    fi
+    
+    echo "  Downloading $font Nerd Font..."
+    DOWNLOAD_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/${font}.zip"
+    
+    TMP_DIR=$(mktemp -d)
+    if curl -fsSL "$DOWNLOAD_URL" -o "$TMP_DIR/${font}.zip" 2>/dev/null; then
+        unzip -q "$TMP_DIR/${font}.zip" -d "$FONT_DIR/${font}/" 2>/dev/null || \
+            unzip -q "$TMP_DIR/${font}.zip" -d "$FONT_DIR/" 2>/dev/null
+        echo "    ✓ $font installed"
+    else
+        echo "    ⚠️  Could not download $font"
+    fi
+    rm -rf "$TMP_DIR"
+done
+
+echo "Refreshing font cache..."
+fc-cache -f 2>/dev/null || true
+
+# {{- end }}
+
+echo ""
+echo "✅ Fonts installed!"
+echo ""
+echo "Recommended terminal fonts:"
+echo "  - Martian Mono (clean, from Evil Martians)"
+echo "  - MartianMono Nerd Font (with icons)"
+echo "  - JetBrainsMono Nerd Font"
+echo "  - FiraCode Nerd Font"
