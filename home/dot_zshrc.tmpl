@@ -40,6 +40,14 @@ plugins=(
 # Zsh-specific Configuration
 # =============================================================================
 
+# Auto cd - type directory name to cd into it (no cd command needed)
+setopt AUTO_CD
+
+# Tab completion
+autoload -Uz compinit && compinit
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+
 # History
 HISTSIZE=50000
 SAVEHIST=50000
