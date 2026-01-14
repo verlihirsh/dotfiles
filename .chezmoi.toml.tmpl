@@ -11,6 +11,7 @@
 {{- $installTmux := promptBoolOnce . "installTmux" "Install and configure tmux" -}}
 {{- $installDirenv := promptBoolOnce . "installDirenv" "Install direnv" -}}
 {{- $installLspServers := promptBoolOnce . "installLspServers" "Install LSP servers (for Neovim/editors)" -}}
+{{- $installOpencode := promptBoolOnce . "installOpencode" "Install OpenCode (AI coding assistant)" -}}
 
 {{- /* Version preferences */ -}}
 {{- $pythonVersion := "3.12" -}}
@@ -42,6 +43,7 @@
     installTmux = {{ $installTmux }}
     installDirenv = {{ $installDirenv }}
     installLspServers = {{ $installLspServers }}
+    installOpencode = {{ $installOpencode }}
     
     # Versions
     pythonVersion = {{ $pythonVersion | quote }}

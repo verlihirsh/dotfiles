@@ -1,0 +1,35 @@
+{{- if .installOpencode -}}
+#!/usr/bin/env bash
+#
+# Install OpenCode (AI coding assistant)
+#
+# Version: 1.0.0
+
+set -euo pipefail
+
+echo "==> Installing OpenCode..."
+
+if ! command -v npm &>/dev/null; then
+    echo "⚠️  npm not found. Please install Node.js first."
+    echo "   Enable 'Install Node.js via fnm' in chezmoi config and re-run."
+    exit 0
+fi
+
+# Install OpenCode globally via npm
+echo "Installing OpenCode via npm..."
+npm install -g @anthropics/opencode || true
+
+# Verify installation
+if command -v opencode &>/dev/null; then
+    echo ""
+    echo "✅ OpenCode installed successfully!"
+    echo "   Version: $(opencode --version 2>/dev/null || echo 'unknown')"
+    echo ""
+    echo "To get started:"
+    echo "   1. Set your API key: export ANTHROPIC_API_KEY='your-key'"
+    echo "   2. Run: opencode"
+else
+    echo "⚠️  OpenCode installation may have failed. Try manually:"
+    echo "   npm install -g @anthropics/opencode"
+fi
+{{- end }}
