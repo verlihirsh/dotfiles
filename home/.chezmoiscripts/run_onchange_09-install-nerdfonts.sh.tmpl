@@ -30,9 +30,9 @@ if command -v brew &>/dev/null; then
     
     echo "Installing Nerd Fonts..."
     for font in "${NERD_FONTS[@]}"; do
+        font_lower=$(echo "$font" | tr '[:upper:]' '[:lower:]')
         echo "  Installing $font Nerd Font..."
-        brew install --cask "font-${font,,}-nerd-font" 2>/dev/null || \
-            brew install --cask "font-$(echo "$font" | tr '[:upper:]' '[:lower:]')-nerd-font" 2>/dev/null || \
+        brew install --cask "font-${font_lower}-nerd-font" 2>/dev/null || \
             echo "    ⚠️  Could not install $font"
     done
 else
