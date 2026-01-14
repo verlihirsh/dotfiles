@@ -11,7 +11,21 @@
 {{- $installTmux := promptBoolOnce . "installTmux" "Install and configure tmux" -}}
 {{- $installDirenv := promptBoolOnce . "installDirenv" "Install direnv" -}}
 {{- $installLspServers := promptBoolOnce . "installLspServers" "Install LSP servers (for Neovim/editors)" -}}
-{{- $installOpencode := promptBoolOnce . "installOpencode" "Install OpenCode (AI coding assistant)" -}}
+{{- $installOpencode := promptBoolOnce . "installOpencode" "Install OpenCode + oh-my-opencode (AI coding)" -}}
+
+{{- /* OpenCode subscription options */ -}}
+{{- $opencodeClaudeMax := false -}}
+{{- $opencodeClaude := false -}}
+{{- $opencodeChatgpt := false -}}
+{{- $opencodeGemini := false -}}
+{{- if $installOpencode -}}
+{{-   $opencodeClaudeMax = promptBoolOnce . "opencodeClaudeMax" "Do you have Claude Max (20x mode) subscription?" -}}
+{{-   if not $opencodeClaudeMax -}}
+{{-     $opencodeClaude = promptBoolOnce . "opencodeClaude" "Do you have Claude Pro subscription?" -}}
+{{-   end -}}
+{{-   $opencodeChatgpt = promptBoolOnce . "opencodeChatgpt" "Do you have ChatGPT subscription?" -}}
+{{-   $opencodeGemini = promptBoolOnce . "opencodeGemini" "Do you have Gemini subscription?" -}}
+{{- end -}}
 
 {{- /* Version preferences */ -}}
 {{- $pythonVersion := "3.12" -}}
@@ -44,6 +58,12 @@
     installDirenv = {{ $installDirenv }}
     installLspServers = {{ $installLspServers }}
     installOpencode = {{ $installOpencode }}
+    
+    # OpenCode subscriptions
+    opencodeClaudeMax = {{ $opencodeClaudeMax }}
+    opencodeClaude = {{ $opencodeClaude }}
+    opencodeChatgpt = {{ $opencodeChatgpt }}
+    opencodeGemini = {{ $opencodeGemini }}
     
     # Versions
     pythonVersion = {{ $pythonVersion | quote }}
