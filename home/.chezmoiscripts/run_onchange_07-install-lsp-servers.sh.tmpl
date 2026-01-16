@@ -17,6 +17,12 @@ echo "==> Installing LSP servers..."
 mkdir -p "$HOME/.local/bin"
 
 # =============================================================================
+# Add common tool paths (uv, cargo, local bin)
+# =============================================================================
+
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+
+# =============================================================================
 # Initialize fnm/node if available (needed for npm-based LSPs)
 # =============================================================================
 
