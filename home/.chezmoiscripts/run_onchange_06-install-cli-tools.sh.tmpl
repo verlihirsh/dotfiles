@@ -18,7 +18,7 @@ echo "==> Installing CLI tools..."
 # macOS: Use Homebrew
 if command -v brew &>/dev/null; then
     echo "Installing CLI tools via Homebrew..."
-    brew install fzf ripgrep fd bat eza jq htop tree uv || true
+    brew install fzf ripgrep fd bat eza jq htop tree uv zoxide neofetch || true
     
     # Install fzf key bindings and completion
     "$(brew --prefix)/opt/fzf/install" --key-bindings --completion --no-update-rc --no-bash --no-fish 2>/dev/null || true
@@ -44,12 +44,18 @@ case "$PKG_MANAGER" in
     apt)
         echo "Installing CLI tools via apt..."
         sudo apt-get update -qq
-        sudo apt-get install -y -qq fzf ripgrep fd-find bat jq htop tree curl wget || true
+        sudo apt-get install -y -qq fzf ripgrep fd-find bat jq htop tree curl wget neofetch || true
         
         # Install uv
         if ! command -v uv &>/dev/null; then
             echo "Installing uv..."
             curl -LsSf https://astral.sh/uv/install.sh | sh
+        fi
+        
+        # Install zoxide
+        if ! command -v zoxide &>/dev/null; then
+            echo "Installing zoxide..."
+            curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
         fi
         
         # Create symlinks for fd and bat (Debian/Ubuntu use different names)
@@ -71,7 +77,7 @@ case "$PKG_MANAGER" in
         
     dnf)
         echo "Installing CLI tools via dnf..."
-        sudo dnf install -y -q fzf ripgrep fd-find bat jq htop tree || true
+        sudo dnf install -y -q fzf ripgrep fd-find bat jq htop tree zoxide neofetch || true
         
         # Install uv
         if ! command -v uv &>/dev/null; then
@@ -90,7 +96,7 @@ case "$PKG_MANAGER" in
         
     pacman)
         echo "Installing CLI tools via pacman..."
-        sudo pacman -S --noconfirm --needed fzf ripgrep fd bat eza jq htop tree uv || true
+        sudo pacman -S --noconfirm --needed fzf ripgrep fd bat eza jq htop tree uv zoxide neofetch || true
         ;;
 esac
 
@@ -111,5 +117,7 @@ command -v bat &>/dev/null && echo "  - bat: $(bat --version 2>/dev/null)"
 command -v eza &>/dev/null && echo "  - eza: $(eza --version 2>/dev/null | head -1)"
 command -v jq &>/dev/null && echo "  - jq: $(jq --version 2>/dev/null)"
 command -v uv &>/dev/null && echo "  - uv: $(uv --version 2>/dev/null)"
+command -v zoxide &>/dev/null && echo "  - zoxide: $(zoxide --version 2>/dev/null)"
+command -v neofetch &>/dev/null && echo "  - neofetch: installed"
 
 echo "==> CLI tools installed!"

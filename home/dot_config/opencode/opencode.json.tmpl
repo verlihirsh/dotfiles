@@ -1,0 +1,101 @@
+{{- if (index . "installOpencode" | default false) -}}
+{
+  "$schema": "https://opencode.ai/config-schema.json",
+  "plugins": [
+    "oh-my-opencode",
+    "opencode-openai-codex-auth"
+  ],
+  "mcpServers": {
+    "mem0": {
+      "type": "sse",
+      "url": "http://localhost:8765/sse"
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    }
+  },
+  "provider": {
+    {{- if (index . "opencodeChatgpt" | default false) }}
+    "openai": {
+      "name": "OpenAI",
+      "options": {
+        "reasoningEffort": "medium",
+        "reasoningSummary": "auto",
+        "textVerbosity": "medium"
+      }
+    }
+    {{- else if (index . "opencodeClaudeMax" | default false) }}
+    "anthropic": {
+      "name": "Anthropic",
+      "options": {
+        "thinkingBudget": "high"
+      }
+    }
+    {{- else if (index . "opencodeClaude" | default false) }}
+    "anthropic": {
+      "name": "Anthropic",
+      "options": {
+        "thinkingBudget": "medium"
+      }
+    }
+    {{- else if (index . "opencodeGemini" | default false) }}
+    "google": {
+      "name": "Google",
+      "options": {}
+    }
+    {{- else }}
+    "openai": {
+      "name": "OpenAI",
+      "options": {
+        "reasoningEffort": "medium",
+        "reasoningSummary": "auto",
+        "textVerbosity": "medium"
+      }
+    }
+    {{- end }}
+  },
+  "models": {
+    {{- if (index . "opencodeChatgpt" | default false) }}
+    "gpt-5.2": {
+      "contextWindow": 272000,
+      "maxOutput": 128000,
+      "variants": ["none", "low", "medium", "high", "xhigh"]
+    },
+    "gpt-5.2-codex": {
+      "contextWindow": 272000,
+      "maxOutput": 128000,
+      "variants": ["low", "medium", "high", "xhigh"]
+    },
+    "gpt-5.1-codex-max": {
+      "contextWindow": 272000,
+      "maxOutput": 128000,
+      "variants": ["low", "medium", "high", "xhigh"]
+    }
+    {{- else if or (index . "opencodeClaudeMax" | default false) (index . "opencodeClaude" | default false) }}
+    "claude-sonnet-4": {
+      "contextWindow": 200000,
+      "maxOutput": 64000
+    },
+    "claude-opus-4": {
+      "contextWindow": 200000,
+      "maxOutput": 32000
+    }
+    {{- else if (index . "opencodeGemini" | default false) }}
+    "gemini-2.5-pro": {
+      "contextWindow": 1000000,
+      "maxOutput": 65536
+    },
+    "gemini-2.5-flash": {
+      "contextWindow": 1000000,
+      "maxOutput": 65536
+    }
+    {{- else }}
+    "default": {
+      "contextWindow": 128000,
+      "maxOutput": 16384
+    }
+    {{- end }}
+  }
+}
+{{- end }}
