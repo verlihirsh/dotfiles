@@ -107,7 +107,7 @@ export FZF_DEFAULT_OPTS=" \
 
 | Original | Replacement | Config |
 |----------|-------------|--------|
-| `cat` | `bat` | Theme: Dracula, `--paging=never` |
+| `cat` | `bat` | Theme: Catppuccin Mocha, `--paging=never` |
 | `ls` | `eza` | Aliases: `ll`, `la`, `lt` (tree) |
 | `cd` | `zoxide` | Smart directory jumping |
 
