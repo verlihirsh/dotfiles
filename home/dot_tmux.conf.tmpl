@@ -72,7 +72,7 @@ bind r source-file ~/.tmux.conf \; display "Config reloaded!"
 bind c new-window -c "#{pane_current_path}"
 
 # fzf session/window picker
-bind f run-shell "tmux neww -n 'picker' 'bash -c \"tmux list-windows -a -F \\\"#S:#I #W\\\" | fzf --reverse | cut -d\\\" \\\" -f1 | xargs -r tmux switch-client -t\"'"
+bind f run-shell "tmux neww -n 'picker' 'bash -c \"tmux list-windows -a -F \\\"#S:#I #W\\\" | fzf --reverse | cut -d\\\" \\\" -f1 | { read sel && [ -n \\\"\\$sel\\\" ] && tmux switch-client -t \\\"\\$sel\\\"; }\"'"
 
 # =============================================================================
 # Status Bar
