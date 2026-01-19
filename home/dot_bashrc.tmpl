@@ -77,6 +77,15 @@ export PATH="$HOME/.opencode/bin:$HOME/.bun/bin:$PATH"
 # =============================================================================
 {{- if (index . "installCliTools" | default false) }}
 
+# zoxide (smart cd)
+if command -v zoxide &>/dev/null; then
+    if [[ -n "$ZSH_VERSION" ]]; then
+        eval "$(zoxide init zsh)"
+    elif [[ -n "$BASH_VERSION" ]]; then
+        eval "$(zoxide init bash)"
+    fi
+fi
+
 # fzf
 if command -v fzf &>/dev/null; then
     # Use fd for fzf if available
@@ -85,6 +94,13 @@ if command -v fzf &>/dev/null; then
         export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
         export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
     fi
+    
+    # UI options
+    export FZF_DEFAULT_OPTS=" \
+        --style=full \
+        --tmux=center,80%,60% \
+        --preview 'fzf-preview.sh {}' \
+        --bind 'focus:transform-header:file'"
     
     # fzf key bindings and completion
     {{- if eq .chezmoi.os "darwin" }}
@@ -184,6 +200,47 @@ extract() {
         echo "'$1' is not a valid file"
     fi
 }
+
+{{- if (index . "installTmux" | default false) }}
+
+# =============================================================================
+# tmux Helpers
+# =============================================================================
+
+# Session management aliases
+alias ta='tmux attach-session -t'
+alias tl='tmux list-sessions'
+alias tn='tmux new-session -s'
+alias tk='tmux kill-session -t'
+alias ts='tmux switch-client -t'
+
+# Quick session from current directory
+tcd() {
+    local name="${1:-$(basename "$PWD")}"
+    tmux new-session -As "$name"
+}
+
+# fzf session/window picker with preview
+tpick() {
+    if ! command -v fzf &>/dev/null; then
+        echo "fzf not installed"
+        return 1
+    fi
+    local selected
+    selected=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf --preview 'tmux list-windows -t {}' --preview-window=right:50%)
+    [[ -n "$selected" ]] && tmux switch-client -t "$selected"
+}
+
+# Create new session with picker fallback
+tnew() {
+    local name="$1"
+    if [[ -z "$name" ]]; then
+        echo -n "Session name: "
+        read name
+    fi
+    [[ -n "$name" ]] && tmux new-session -ds "$name" && tmux switch-client -t "$name"
+}
+{{- end }}
 
 # =============================================================================
 # Bash-specific Configuration

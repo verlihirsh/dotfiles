@@ -42,10 +42,10 @@ set -g renumber-windows on
 # Key Bindings
 # =============================================================================
 
-# Change prefix to Ctrl-a (like screen)
+# Change prefix to backtick (`)
 unbind C-b
-set -g prefix C-a
-bind C-a send-prefix
+set -g prefix `
+bind ` send-prefix
 
 # Split panes with | and -
 bind | split-window -h -c "#{pane_current_path}"
@@ -70,6 +70,9 @@ bind r source-file ~/.tmux.conf \; display "Config reloaded!"
 
 # New window in current path
 bind c new-window -c "#{pane_current_path}"
+
+# fzf session/window picker
+bind f run-shell "tmux neww -n 'picker' 'bash -c \"tmux list-windows -a -F \\\"#S:#I #W\\\" | fzf --reverse | cut -d\\\" \\\" -f1 | xargs -r tmux switch-client -t\"'"
 
 # =============================================================================
 # Status Bar
