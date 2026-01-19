@@ -739,7 +739,7 @@ rest = {
 ```ini
 [user]
     name = "Olga"
-    email = "Leonteva"
+    email = "user@example.com"
 
 [init]
     defaultBranch = main
