@@ -148,7 +148,7 @@ dotfiles-doctor
 | **uv** | Fast Python package and version manager (replaces pyenv, pip, poetry, pipx) |
 | **fnm** | Fast Node.js version manager |
 | **Neovim** | Editor with jelvim config |
-| **CLI tools** | fzf, ripgrep, fd, bat, eza, jq, htop, uv |
+| **CLI tools** | fzf, ripgrep, fd, bat, eza, jq, htop |
 | **tmux** | Terminal multiplexer with sensible config |
 | **direnv** | Per-directory environment variables |
 | **LSP servers** | Language servers for Python, TypeScript, Go, Lua, Bash, YAML, Docker, Markdown |

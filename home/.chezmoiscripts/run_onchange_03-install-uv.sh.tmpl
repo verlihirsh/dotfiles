@@ -8,18 +8,24 @@ exit 0
 # Install uv and Python
 # Runs when Python version changes
 #
-# Python version: # {{ index . "pythonVersion" | default "3.12" }}
+# {{ $defaultPythonVersion := "3.12" }}
+# Python version: # {{ index . "pythonVersion" | default $defaultPythonVersion }}
 
 set -euo pipefail
 
 echo "==> Setting up Python via uv..."
 
-PYTHON_VERSION="# {{ index . "pythonVersion" | default "3.12" }}"
+PYTHON_VERSION="# {{ index . "pythonVersion" | default $defaultPythonVersion }}"
 
 # Install uv if not present
 if ! command -v uv &>/dev/null; then
     echo "Installing uv..."
-    curl -LsSf https://astral.sh/uv/install.sh | sh
+    # Download the installer script first to avoid piping remote content directly into the shell.
+    # You may inspect this script before execution if desired.
+    uv_install_script="$(mktemp)"
+    curl -LsSf -o "$uv_install_script" https://astral.sh/uv/install.sh
+    sh "$uv_install_script"
+    rm -f "$uv_install_script"
     
     # Add to PATH for current session
     export PATH="$HOME/.local/bin:$PATH"
@@ -33,7 +39,19 @@ uv self update
 
 # Parse Python versions from config (supports space or comma separated)
 # Examples: "3.11 3.12 3.13" or "3.11, 3.12, 3.13" or just "3.12"
-IFS=', ' read -ra VERSIONS <<< "$PYTHON_VERSION"
+
+# Validate python version string: allow only digits, dots, commas, and whitespace
+if [[ "$PYTHON_VERSION" =~ [^0-9.,[:space:]] ]]; then
+    echo "Error: Invalid characters in PYTHON_VERSION: '$PYTHON_VERSION'" >&2
+    exit 1
+fi
+
+# Normalize to space-separated list and remove extra whitespace/commas
+normalized_python_version=$(echo "$PYTHON_VERSION" | tr ',' ' ' | xargs)
+normalized_python_version=$(echo "$normalized_python_version" | tr -s ' ')
+
+# Read versions into array
+read -ra VERSIONS <<< "$normalized_python_version"
 
 # Install Python versions
 for version in "${VERSIONS[@]}"; do
@@ -42,7 +60,7 @@ for version in "${VERSIONS[@]}"; do
     
     if [[ -n "$version" ]]; then
         echo "Installing Python $version..."
-        uv python install "$version" || echo "Python $version already installed or not available"
+        uv python install "$version"
     fi
 done
 
@@ -50,7 +68,7 @@ done
 if [[ ! -f "$HOME/.python-version" ]] && [[ ${#VERSIONS[@]} -gt 0 ]]; then
     first_version=$(echo "${VERSIONS[0]}" | xargs)
     echo "Setting Python $first_version as default..."
-    cd "$HOME" && uv python pin "$first_version"
+    (cd "$HOME" && uv python pin "$first_version")
 fi
 
 # Verify installation
@@ -60,13 +78,20 @@ uv python list
 # Find the default Python
 if [[ -f "$HOME/.python-version" ]]; then
     default_version=$(cat "$HOME/.python-version")
-    python_path=$(uv python find "$default_version" 2>/dev/null || echo "not found")
-    echo "Default Python version: $default_version"
-    echo "Python path: $python_path"
     
-    # Verify it works
-    if [[ "$python_path" != "not found" ]]; then
-        echo "Python version: $("$python_path" --version 2>&1)"
+    # Try to locate the Python executable for the default version
+    if python_path=$(uv python find "$default_version" 2>/dev/null); then
+        echo "Default Python version: $default_version"
+        echo "Python path: $python_path"
+
+        # Verify it works only if the path is non-empty and executable
+        if [[ -n "$python_path" && -x "$python_path" ]]; then
+            echo "Python version: $("$python_path" --version 2>&1)"
+        else
+            echo "Warning: Python executable for version $default_version is not usable (path: $python_path)"
+        fi
+    else
+        echo "Warning: Python version $default_version is not installed or could not be found by uv."
     fi
 fi
 
