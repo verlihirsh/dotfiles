@@ -150,6 +150,7 @@ alias g='git'
 alias gs='git status'
 alias gd='git diff'
 alias gc='git commit'
+alias gcam='git commit -am $1'
 alias gp='git push'
 alias gpsup='git push -u origin'
 alias gl='git pull'
@@ -179,9 +180,11 @@ mkcd() {
     mkdir -p "$1" && cd "$1"
 }
 
-# Git commit with message
-gcam() {
-    git commit -am "$1"
+# AI-assisted git commit
+gcama() {
+    git add .
+    local commit_msg=$(opencode run --model github-copilot/claude-haiku-4.5 --format json "Check git diff and return commit message for this diff" | jq -r 'select(.type == "text") | .text' | tail -n 1)
+    gcam "$commit_msg"
 }
 
 # Extract various archive formats
