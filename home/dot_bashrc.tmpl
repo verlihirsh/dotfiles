@@ -36,13 +36,9 @@ fi
 # =============================================================================
 {{- if (index . "installPython" | default false) }}
 
-# pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d "$PYENV_ROOT/bin" ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-if command -v pyenv &>/dev/null; then
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
-fi
+# uv - Python package and version manager
+# No shell initialization needed - uv manages Python versions via .python-version files
+# Just ensure uv is in PATH (installed to ~/.local/bin by default)
 {{- end }}
 
 {{- if (index . "installNode" | default false) }}

@@ -4,7 +4,7 @@
 
 {{- /* Tool selections */ -}}
 {{- $installZsh := promptBoolOnce . "installZsh" "Install zsh + oh-my-zsh" -}}
-{{- $installPython := promptBoolOnce . "installPython" "Install Python via pyenv" -}}
+{{- $installPython := promptBoolOnce . "installPython" "Install Python via uv (fast, modern Python manager)" -}}
 {{- $installNode := promptBoolOnce . "installNode" "Install Node.js via fnm" -}}
 {{- $installNeovim := promptBoolOnce . "installNeovim" "Install Neovim with jelvim config" -}}
 {{- $installCliTools := promptBoolOnce . "installCliTools" "Install CLI tools (fzf, ripgrep, fd, bat, zoxide, etc.)" -}}
@@ -33,7 +33,7 @@
 {{- $pythonVersion := "3.12" -}}
 {{- $nodeVersion := "22" -}}
 {{- if $installPython -}}
-{{-   $pythonVersion = promptStringOnce . "pythonVersion" "Python version (e.g., 3.12)" -}}
+{{-   $pythonVersion = promptStringOnce . "pythonVersion" "Python version(s) - space or comma separated (e.g., '3.11 3.12 3.13' or just '3.12')" -}}
 {{- end -}}
 {{- if $installNode -}}
 {{-   $nodeVersion = promptStringOnce . "nodeVersion" "Node.js version (e.g., 22)" -}}
