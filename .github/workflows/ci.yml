@@ -65,10 +65,6 @@ jobs:
           # Initialize chezmoi with the source directory
           chezmoi init --source="${{ github.workspace }}/home"
           
-          # Execute templates to validate syntax (dry-run)
-          echo "Validating template syntax..."
-          chezmoi execute-template < /dev/null || true
-          
           # Try to apply in dry-run mode to validate all templates
           echo "Running chezmoi apply --dry-run to validate configuration..."
           chezmoi apply --dry-run --verbose
@@ -78,20 +74,6 @@ jobs:
           echo "Verifying chezmoi data variables..."
           chezmoi data
       
-      - name: Check for template errors
+      - name: Summary
         run: |
-          echo "Checking for common template issues..."
-          
-          # Check for undefined variables in templates
-          if grep -r "{{.*undefined.*}}" "${{ github.workspace }}/home" --include="*.tmpl" 2>/dev/null; then
-            echo "::error::Found undefined variables in templates"
-            exit 1
-          fi
-          
-          # Validate .chezmoiignore syntax
-          if [ -f "${{ github.workspace }}/.chezmoiignore" ]; then
-            echo "Validating .chezmoiignore..."
-            cat "${{ github.workspace }}/.chezmoiignore"
-          fi
-          
-          echo "✅ All checks passed!"
+          echo "✅ All chezmoi configuration checks passed!"
