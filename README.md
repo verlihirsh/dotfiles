@@ -599,12 +599,6 @@ If tmux doesn't automatically start:
 cat ~/.config/chezmoi/chezmoi.toml | grep installTmux
 ```
 
-**Disable tmux auto-start temporarily:**
-```bash
-# Add to ~/.bashrc.local or ~/.zshrc.local
-export TMUX_AUTOSTART=0
-```
-
 **Skip tmux in specific environments:**
 - VSCode integrated terminal: Already handled automatically
 - SSH with X11 forwarding: Already handled automatically
