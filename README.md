@@ -134,6 +134,7 @@ dotfiles-doctor
 ### 🚀 Core Features
 
 - **Interactive installation**: Choose tools during setup with interactive prompts
+- **Auto-configured environment**: Zsh and tmux automatically set as default when selected
 - **Cross-platform support**: Works on macOS (Intel & Apple Silicon), Linux (Ubuntu, Debian, Fedora, Arch), and WSL
 - **Secrets management**: Secure copy of SSH keys, API tokens, and credentials
 - **Idempotent scripts**: Re-run safely without breaking existing setup
@@ -142,7 +143,7 @@ dotfiles-doctor
 
 | Tool | Description |
 |------|-------------|
-| **zsh + oh-my-zsh** | Shell with plugins (autosuggestions, syntax highlighting, completions) |
+| **zsh + oh-my-zsh** | Shell with plugins (autosuggestions, syntax highlighting, completions). **Auto-set as default shell** |
 | **Starship** | Modern cross-shell prompt with git status, language versions, etc. |
 | **Nerd Fonts** | Patched fonts with icons (JetBrainsMono, FiraCode, Hack) |
 | **uv** | Fast Python package and version manager (replaces pyenv, pip, poetry, pipx) |
@@ -567,6 +568,58 @@ Built using:
 - [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode) - OpenCode integration
 
 Special thanks to the open-source community and all contributors.
+
+---
+
+## Troubleshooting
+
+### Zsh Not Set as Default Shell
+
+If `chezmoi` shows a message about failing to set zsh as default:
+
+**The fallback auto-switch is already configured** - zsh will automatically launch when you open a new terminal, even if `chsh` failed.
+
+If you want to permanently set zsh as your login shell:
+
+```bash
+# Manually run the shell change command
+chsh -s $(which zsh)
+
+# Then log out and log back in
+```
+
+**Why `chsh` might fail:**
+- PAM authentication required (some corporate systems)
+- User doesn't have permission to change shell
+- WSL environment restrictions
+- System security policies
+
+### Tmux Auto-Start Not Working
+
+If tmux doesn't automatically start:
+
+**Check your config:**
+```bash
+# View your chezmoi config
+cat ~/.config/chezmoi/chezmoi.toml | grep installTmux
+```
+
+**Skip tmux in specific environments:**
+- VSCode integrated terminal: Already handled automatically
+- SSH with X11 forwarding: Already handled automatically
+- Custom scenarios: Set `TERM_PROGRAM=vscode` to skip auto-start
+
+### Force Re-run zsh Configuration
+
+If you need to retry the shell setup:
+
+```bash
+# Delete the run_once state for zsh configuration
+chezmoi state delete-bucket --bucket=scriptState
+
+# Re-apply
+chezmoi apply
+```
 
 ---
 
