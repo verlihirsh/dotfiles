@@ -150,13 +150,11 @@ alias g='git'
 alias gs='git status'
 alias gd='git diff'
 alias gc='git commit'
+alias gcam='git commit -am $1'
 alias gp='git push'
+alias gpsup='git push -u origin'
 alias gl='git pull'
-
-# Navigation
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
+alias ggl='git pull'
 
 # Safety nets
 alias rm='rm -i'
@@ -180,6 +178,13 @@ alias vi='nvim'
 # Create directory and cd into it
 mkcd() {
     mkdir -p "$1" && cd "$1"
+}
+
+# AI-assisted git commit
+gcama() {
+    git add .
+    local commit_msg=$(opencode run --model github-copilot/claude-haiku-4.5 --format json "Check git diff and return commit message for this diff" | jq -r 'select(.type == "text") | .text' | tail -n 1)
+    gcam "$commit_msg"
 }
 
 # Extract various archive formats
@@ -217,31 +222,56 @@ alias tn='tmux new-session -s'
 alias tk='tmux kill-session -t'
 alias ts='tmux switch-client -t'
 
-# Quick session from current directory
+# Quick session with current directory name
 tcd() {
     local name="${1:-$(basename "$PWD")}"
-    tmux new-session -As "$name"
+    tmux new-session -A -s "$name"
 }
 
-# fzf session/window picker with preview
+# Session/window picker with fzf and preview
 tpick() {
-    if ! command -v fzf &>/dev/null; then
-        echo "fzf not installed"
+    if ! command -v tmux &>/dev/null; then
+        echo "tmux not installed" >&2
         return 1
     fi
+    
+    if ! tmux has-session 2>/dev/null; then
+        echo "No tmux sessions" >&2
+        return 1
+    fi
+    
     local selected
-    selected=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf --preview 'tmux list-windows -t {}' --preview-window=right:50%)
-    [[ -n "$selected" ]] && tmux switch-client -t "$selected"
+    selected=$(tmux list-windows -a -F '#{session_name}:#{window_index} │ #{window_name}#{?window_active, ←,}#{?session_attached, [attached],}' | \
+        fzf --prompt='tmux > ' \
+            --height=40% \
+            --reverse \
+            --preview='tmux capture-pane -t {1} -p 2>/dev/null | head -30' \
+            --preview-window=right:50%:wrap | \
+        cut -d' ' -f1)
+    
+    if [[ -n "$selected" ]]; then
+        if [[ -n "$TMUX" ]]; then
+            tmux switch-client -t "$selected"
+        else
+            tmux attach-session -t "$selected"
+        fi
+    fi
 }
 
 # Create new session with picker fallback
 tnew() {
-    local name="$1"
+    local name="${1:-}"
     if [[ -z "$name" ]]; then
         echo -n "Session name: "
         read name
     fi
-    [[ -n "$name" ]] && tmux new-session -ds "$name" && tmux switch-client -t "$name"
+    if [[ -n "$name" ]]; then
+        if [[ -n "$TMUX" ]]; then
+            tmux new-session -d -s "$name" && tmux switch-client -t "$name"
+        else
+            tmux new-session -s "$name"
+        fi
+    fi
 }
 {{- end }}
 

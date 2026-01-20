@@ -71,8 +71,11 @@ bind r source-file ~/.tmux.conf \; display "Config reloaded!"
 # New window in current path
 bind c new-window -c "#{pane_current_path}"
 
-# fzf session/window picker
-bind f run-shell "tmux neww -n 'picker' 'bash -c \"tmux list-windows -a -F \\\"#S:#I #W\\\" | fzf --reverse | cut -d\\\" \\\" -f1 | { read sel && [ -n \\\"\\$sel\\\" ] && tmux switch-client -t \\\"\\$sel\\\"; }\"'"
+# fzf session/window picker with fzf popup
+bind f display-popup -E "tmux list-windows -a -F '#{session_name}:#{window_index} │ #{window_name}#{?window_active, ←,}#{?session_attached, [attached],}' | fzf --prompt='tmux > ' --preview='tmux capture-pane -t {1} -p 2>/dev/null | head -30' --preview-window=right:50%:wrap | cut -d' ' -f1 | xargs -I{} tmux switch-client -t {}"
+
+# Dashboard (prefix + D)
+bind D run-shell "~/.config/tmux-dash/dash.sh"
 
 # =============================================================================
 # Status Bar
@@ -95,8 +98,10 @@ setw -g window-status-current-format '#[fg=#00ff00,bold] #I:#W '
 # Pane Border
 # =============================================================================
 
-set -g pane-border-style 'fg=#444444'
-set -g pane-active-border-style 'fg=#00ff00'
+# set -g pane-border-style 'fg=#444444'
+# set -g pane-active-border-style 'fg=#00ff00'
+set -g pane-border-style fg=magenta
+set -g pane-active-border-style "bg=default fg=magenta"
 
 # =============================================================================
 # Plugins (via TPM)

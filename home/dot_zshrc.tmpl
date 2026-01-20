@@ -27,6 +27,8 @@ plugins=(
     docker
     docker-compose
     kubectl
+    fzf-tab
+    fzf-tab-source
     zsh-autosuggestions
     zsh-syntax-highlighting
     zsh-completions
@@ -41,14 +43,6 @@ plugins=(
 # Zsh-specific Configuration
 # =============================================================================
 
-# Auto cd - type directory name to cd into it (no cd command needed)
-setopt AUTO_CD
-
-# Tab completion
-autoload -Uz compinit && compinit
-zstyle ':completion:*' menu select
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-
 # History
 HISTSIZE=50000
 SAVEHIST=50000
@@ -60,9 +54,54 @@ setopt HIST_FIND_NO_DUPS
 setopt SHARE_HISTORY
 setopt EXTENDED_HISTORY
 
+# Auto cd - type directory name to cd into it (no cd command needed)
+setopt AUTO_CD
+
+# Tab completion
+autoload -Uz compinit && compinit
+
+# Use emacs keybindings (standard terminal behavior)
+bindkey -e
+
+# History substring search keybindings
+bindkey "^[[A" history-substring-search-up   # Up arrow
+bindkey "^[[B" history-substring-search-down # Down arrow
+
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*:descriptions' format '[%d]'
+
+# =============================================================================
+# Plugin Configuration
+# =============================================================================
+
+# FZF-tab configuration
+zstyle ':fzf-tab:*' ftb-tmux-popup
+zstyle ':fzf-tab:*' popup-pad 30 0
+# Fixed popup size: 80% width, 30 lines height (doesn't shrink with content)
+zstyle ':fzf-tab:*' popup-min-size 80 30
+zstyle ':fzf-tab:*' fzf-min-height 30
+zstyle ':fzf-tab:*' show-group full
+
+# Autosuggestions strategy
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+
+# Zoxide (smart cd)
+{{- if (index . "installCliTools" | default false) }}
+if command -v zoxide &>/dev/null; then
+    eval "$(zoxide init zsh)"
+fi
+{{- end }}
+
 # =============================================================================
 # Local Configuration
 # =============================================================================
 
 # Source local overrides if present
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
+
+# OpenCode stats widget (current month)
+{{- if (index . "installOpencode" | default false) }}
+alias ocstats="~/.config/ocstats.sh"
+alias ocwatch="watch -t -n 60 --color ~/.config/ocstats.sh"
+{{- end }}
