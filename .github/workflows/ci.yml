@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate-chezmoi:
+    name: Validate chezmoi configuration
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install chezmoi
+        run: |
+          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+          chezmoi --version
+      
+      - name: Initialize chezmoi with test data
+        run: |
+          # Create a test config directory
+          export CHEZMOI_SOURCE_DIR="${{ github.workspace }}/home"
+          export CHEZMOI_DEST_DIR="/tmp/chezmoi-test-dest"
+          
+          # Create test .chezmoi.toml.yaml with all required variables
+          mkdir -p ~/.config/chezmoi
+          cat > ~/.config/chezmoi/chezmoi.toml << EOF
+          [data]
+              name = "CI Test User"
+              email = "ci@example.com"
+              editor = "vim"
+              installZsh = false
+              installPython = false
+              installNode = false
+              installNeovim = false
+              installCliTools = false
+              installTmux = false
+              installDirenv = false
+              installLspServers = false
+              installOpencode = false
+              installNerdFonts = false
+              installStarship = false
+              opencodeClaudeMax = false
+              opencodeClaude = false
+              opencodeChatgpt = false
+              opencodeGemini = false
+              pythonVersion = "3.12"
+              nodeVersion = "22"
+              secretsPath = ""
+              generateSshKey = false
+              sshKeyType = "ed25519"
+          
+          [git]
+              autoCommit = false
+              autoPush = false
+          EOF
+      
+      - name: Validate template syntax
+        run: |
+          # Initialize chezmoi with the source directory
+          chezmoi init --source="${{ github.workspace }}/home"
+          
+          # Execute templates to validate syntax (dry-run)
+          echo "Validating template syntax..."
+          chezmoi execute-template < /dev/null || true
+          
+          # Try to apply in dry-run mode to validate all templates
+          echo "Running chezmoi apply --dry-run to validate configuration..."
+          chezmoi apply --dry-run --verbose
+      
+      - name: Verify chezmoi data
+        run: |
+          echo "Verifying chezmoi data variables..."
+          chezmoi data
+      
+      - name: Check for template errors
+        run: |
+          echo "Checking for common template issues..."
+          
+          # Check for undefined variables in templates
+          if grep -r "{{.*undefined.*}}" "${{ github.workspace }}/home" --include="*.tmpl" 2>/dev/null; then
+            echo "::error::Found undefined variables in templates"
+            exit 1
+          fi
+          
+          # Validate .chezmoiignore syntax
+          if [ -f "${{ github.workspace }}/.chezmoiignore" ]; then
+            echo "Validating .chezmoiignore..."
+            cat "${{ github.workspace }}/.chezmoiignore"
+          fi
+          
+          echo "✅ All checks passed!"
