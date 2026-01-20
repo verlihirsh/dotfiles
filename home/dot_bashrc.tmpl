@@ -38,8 +38,7 @@ fi
 
 # uv - Python package and version manager
 # No shell initialization needed - uv manages Python versions via .python-version files
-# Ensure uv is in PATH (installed to ~/.local/bin by default)
-export PATH="$HOME/.local/bin:$PATH"
+# uv is installed to ~/.local/bin which is already in PATH (line 19)
 {{- end }}
 
 {{- if (index . "installNode" | default false) }}

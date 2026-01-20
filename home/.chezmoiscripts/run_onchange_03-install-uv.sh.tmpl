@@ -40,15 +40,14 @@ uv self update
 # Parse Python versions from config (supports space or comma separated)
 # Examples: "3.11 3.12 3.13" or "3.11, 3.12, 3.13" or just "3.12"
 
-# Validate python version string: allow only digits, dots, commas, and whitespace
-if [[ "$PYTHON_VERSION" =~ [^0-9.,[:space:]] ]]; then
+# Validate python version string: allow only digits, dots, commas, letters (for pre-release), and whitespace
+if [[ "$PYTHON_VERSION" =~ [^0-9.,[:space:][:alpha:]] ]]; then
     echo "Error: Invalid characters in PYTHON_VERSION: '$PYTHON_VERSION'" >&2
     exit 1
 fi
 
 # Normalize to space-separated list and remove extra whitespace/commas
-normalized_python_version=$(echo "$PYTHON_VERSION" | tr ',' ' ' | xargs)
-normalized_python_version=$(echo "$normalized_python_version" | tr -s ' ')
+normalized_python_version=$(echo "$PYTHON_VERSION" | tr ',' ' ' | tr -s ' ' | xargs)
 
 # Read versions into array
 read -ra VERSIONS <<< "$normalized_python_version"
