@@ -20,19 +20,35 @@ if [[ "$SHELL" != *"zsh"* ]]; then
     echo "Changing default shell to zsh..."
     
     # Check if zsh is in /etc/shells
-    if ! grep -q "$ZSH_PATH" /etc/shells 2>/dev/null; then
-        echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
+    if ! grep -qx "$ZSH_PATH" /etc/shells 2>/dev/null; then
+        echo "Adding $ZSH_PATH to /etc/shells..."
+        if echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null 2>&1; then
+            echo "Successfully added zsh to /etc/shells"
+        else
+            echo "WARNING: Could not add zsh to /etc/shells (may need manual intervention)"
+        fi
     fi
     
-    # Try chsh, handle WSL case
-    if chsh -s "$ZSH_PATH" 2>/dev/null; then
-        echo "Default shell changed to zsh"
+    # Try chsh with better error handling
+    echo "Attempting to change default shell..."
+    if chsh -s "$ZSH_PATH"; then
+        echo "✓ Default shell changed to zsh successfully"
+        echo "  Please log out and log back in for changes to take effect"
     else
-        echo "Could not change shell via chsh"
-        echo "You may need to run: chsh -s \$(which zsh)"
+        EXIT_CODE=$?
+        echo "✗ Failed to change default shell (exit code: $EXIT_CODE)"
+        echo ""
+        echo "MANUAL ACTION REQUIRED:"
+        echo "  Run this command to change your shell:"
+        echo "    chsh -s $ZSH_PATH"
+        echo ""
+        echo "  Or edit /etc/passwd directly (if you have permission)"
+        echo ""
+        echo "  After changing shell, log out and log back in"
+        # Don't exit with error - installation can continue
     fi
 else
-    echo "zsh is already the default shell"
+    echo "✓ zsh is already the default shell"
 fi
 
-echo "==> zsh configured!"
+echo "==> zsh configuration complete!"
