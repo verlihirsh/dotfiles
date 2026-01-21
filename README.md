@@ -146,11 +146,11 @@ dotfiles-doctor
 | **zsh + oh-my-zsh** | Shell with plugins (autosuggestions, syntax highlighting, completions). **Auto-set as default shell** |
 | **Starship** | Modern cross-shell prompt with git status, language versions, etc. |
 | **Nerd Fonts** | Patched fonts with icons (JetBrainsMono, FiraCode, Hack) |
-| **pyenv** | Python version manager |
+| **uv** | Fast Python package and version manager (replaces pyenv, pip, poetry, pipx) |
 | **fnm** | Fast Node.js version manager |
 | **Neovim** | Editor with jelvim config |
-| **CLI tools** | fzf, ripgrep, fd, bat, eza, jq, htop, uv |
-| **tmux** | Terminal multiplexer with sensible config. **Auto-starts on new terminals** |
+| **CLI tools** | fzf, ripgrep, fd, bat, eza, jq, htop |
+| **tmux** | Terminal multiplexer with sensible config |
 | **direnv** | Per-directory environment variables |
 | **LSP servers** | Language servers for Python, TypeScript, Go, Lua, Bash, YAML, Docker, Markdown |
 | **OpenCode** | AI-powered coding assistant with oh-my-opencode |
@@ -188,14 +188,14 @@ Edit `~/.config/chezmoi/chezmoi.toml` to change tool versions or settings:
 ```toml
 [data]
     # Tool versions
-    pythonVersion = "3.12"
+    pythonVersion = "3.11 3.12 3.13"  # Space or comma separated
     nodeVersion = "22"
     
     # Feature flags
     installZsh = true
     installStarship = true
     installNerdFonts = true
-    installPyenv = true
+    installPython = true
     installFnm = true
     installNeovim = true
     installCliTools = true
@@ -317,10 +317,15 @@ source ~/.zshrc
 # Edit configuration
 chezmoi edit ~/.config/chezmoi/chezmoi.toml
 
-# Change: pythonVersion = "3.12" to pythonVersion = "3.11"
+# Change: pythonVersion = "3.12" to pythonVersion = "3.11 3.12 3.13"
+# (uv supports multiple versions)
 
-# Apply changes (will re-run pyenv installation with new version)
+# Apply changes (will re-run uv installation with new versions)
 chezmoi apply
+
+# Pin a version for your project directory
+cd ~/my-project
+uv python pin 3.11
 ```
 
 #### Example 3: Add Secrets
@@ -371,8 +376,8 @@ Edit `~/.config/chezmoi/chezmoi.toml`:
 
 ```toml
 [data]
-    pythonVersion = "3.12"  # Change to desired version
-    nodeVersion = "22"      # Change to desired version
+    pythonVersion = "3.11 3.12 3.13"  # Change to desired versions
+    nodeVersion = "22"                 # Change to desired version
 ```
 
 Then apply:
@@ -460,7 +465,7 @@ dotfiles/
 │   │   ├── run_onchange_00-copy-secrets.sh.tmpl
 │   │   ├── run_onchange_01-install-system-deps.sh.tmpl
 │   │   ├── run_once_02-configure-zsh.sh.tmpl
-│   │   ├── run_onchange_03-install-pyenv.sh.tmpl
+│   │   ├── run_onchange_03-install-uv.sh.tmpl
 │   │   ├── run_onchange_04-install-fnm.sh.tmpl
 │   │   ├── run_onchange_05-configure-neovim.sh.tmpl
 │   │   ├── run_onchange_06-install-cli-tools.sh.tmpl
