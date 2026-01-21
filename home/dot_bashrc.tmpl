@@ -42,8 +42,15 @@ fi
 
 export EDITOR="{{ index . "editor" | default "vim" }}"
 export VISUAL="{{ index . "editor" | default "vim" }}"
-export LANG="en_US.UTF-8"
-export LC_ALL="en_US.UTF-8"
+
+# Set locale only if available (prevents WSL/Linux errors)
+if locale -a 2>/dev/null | grep -qi "^en_US.UTF-8$\|^en_US.utf8$"; then
+    export LANG="en_US.UTF-8"
+    export LC_ALL="en_US.UTF-8"
+elif locale -a 2>/dev/null | grep -qi "^C.UTF-8$\|^C.utf8$"; then
+    export LANG="C.UTF-8"
+    export LC_ALL="C.UTF-8"
+fi
 
 # XDG Base Directory
 export XDG_CONFIG_HOME="$HOME/.config"
