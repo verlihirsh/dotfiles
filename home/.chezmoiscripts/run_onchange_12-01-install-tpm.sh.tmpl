@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
+# {{ if not (index . "installTmux" | default false) }}
+# Skip - tmux not enabled
+exit 0
+# {{ end }}
+#
+# Install tmux plugin manager (TPM) (not managed by chezmoi)
+#
+# Version: 1.0.0
+
+set -euo pipefail
+
+echo "==> Installing tmux plugin manager (TPM)..."
+
+if ! command -v git &>/dev/null; then
+  echo "git not found; cannot install TPM"
+  exit 1
+fi
+
+TPM_DIR="$HOME/.tmux/plugins/tpm"
+mkdir -p "$(dirname "$TPM_DIR")"
+
+if [[ ! -d "$TPM_DIR" ]]; then
+  git clone --depth 1 https://github.com/tmux-plugins/tpm.git "$TPM_DIR"
+else
+  git -C "$TPM_DIR" pull --ff-only || true
+fi
+
+echo "==> TPM installation complete!"
