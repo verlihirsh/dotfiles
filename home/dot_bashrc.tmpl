@@ -3,8 +3,8 @@
 # Environment Variables
 # =============================================================================
 
-export EDITOR="{{ index . "editor" | default "vim" }}"
-export VISUAL="{{ index . "editor" | default "vim" }}"
+export EDITOR="{{ index . "editor" | default "nvim" }}"
+export VISUAL="{{ index . "editor" | default "nvim" }}"
 
 # Set locale only if available (prevents WSL/Linux errors)
 if locale -a 2>/dev/null | grep -qi "^en_US.UTF-8$\|^en_US.utf8$"; then

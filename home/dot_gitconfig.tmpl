@@ -8,7 +8,7 @@
     defaultBranch = main
 
 [core]
-    editor = {{ index . "editor" | default "vim" }}
+    editor = {{ index . "editor" | default "nvim" }}
     autocrlf = input
     excludesfile = ~/.gitignore_global
     pager = delta
@@ -25,9 +25,11 @@
 
 [diff]
     colorMoved = zebra
+    tool = nvimdiff
 
 [merge]
     conflictstyle = diff3
+    tool = nvimdiff
 
 [rebase]
     autoStash = true
