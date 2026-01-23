@@ -27,6 +27,9 @@ set -g status-interval 5
 # Focus events
 set -g focus-events on
 
+set -g allow-passthrough on
+set -ga update-environment TERM
+set -ga update-environment TERM_PROGRAM
 # =============================================================================
 # Window/Pane Settings
 # =============================================================================
@@ -74,9 +77,6 @@ bind c new-window -c "#{pane_current_path}"
 # fzf session/window picker with fzf popup
 bind f display-popup -E "tmux list-windows -a -F '#{session_name}:#{window_index} │ #{window_name}#{?window_active, ←,}#{?session_attached, [attached],}' | fzf --prompt='tmux > ' --preview='tmux capture-pane -t {1} -p 2>/dev/null | head -30' --preview-window=right:50%:wrap | cut -d' ' -f1 | xargs -I{} tmux switch-client -t {}"
 
-# Dashboard (prefix + D)
-bind D run-shell "~/.config/tmux-dash/dash.sh"
-
 # =============================================================================
 # Status Bar
 # =============================================================================
@@ -116,9 +116,6 @@ set -g @plugin 'tmux-plugins/tmux-sensible'
 # Persist sessions across restarts
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
-
-# Enable auto-restore
-set -g @continuum-restore 'on'
 
 # Initialize TPM (keep at the bottom)
 run '~/.tmux/plugins/tpm/tpm'

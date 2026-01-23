@@ -1,41 +1,4 @@
 # ~/.bashrc - managed by chezmoi
-# Common shell configuration (sourced by both bash and zsh)
-
-{{- if (index . "installZsh" | default false) }}
-# =============================================================================
-# Auto-switch to zsh if running bash interactively
-# =============================================================================
-# This is a fallback in case 'chsh' didn't work during setup
-if [[ -n "$BASH_VERSION" ]] && [[ "$SHELL" != *"zsh"* ]] && [[ -z "$ZSH_SWITCHED" ]]; then
-    if command -v zsh &>/dev/null; then
-        # Check if this is an interactive shell
-        if [[ $- == *i* ]]; then
-            export ZSH_SWITCHED=1
-            exec zsh
-        fi
-    fi
-fi
-{{- end }}
-
-{{- if (index . "installTmux" | default false) }}
-# =============================================================================
-# Auto-start tmux for interactive shells
-# =============================================================================
-# Only start tmux if:
-# - Not already inside tmux
-# - tmux is installed
-# - This is an interactive shell
-# - Not in VSCode integrated terminal
-# - Not in SSH with X11 forwarding (conflicts with some terminals)
-if [[ -z "$TMUX" ]] && command -v tmux &>/dev/null && [[ $- == *i* ]]; then
-    # Skip tmux in VSCode terminal
-    if [[ -z "$VSCODE_INJECTION" ]] && [[ -z "$TERM_PROGRAM" || "$TERM_PROGRAM" != "vscode" ]]; then
-        # Attach to existing session named 'main' or create it
-        exec tmux new-session -A -s main
-    fi
-fi
-{{- end }}
-
 # =============================================================================
 # Environment Variables
 # =============================================================================
