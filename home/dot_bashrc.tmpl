@@ -166,10 +166,14 @@ alias mv='mv -i'
 alias c='clear'
 alias h='history'
 alias j='jobs -l'
+alias cdc='~/.config'
+
+
 
 {{- if (index . "installNeovim" | default false) }}
 alias vim='nvim'
 alias vi='nvim'
+
 {{- end }}
 
 # =============================================================================
@@ -215,6 +219,10 @@ extract() {
 # =============================================================================
 # tmux Helpers
 # =============================================================================
+
+scratch() {
+  tmux popup -E "vim ~/scratch.md +"
+}
 
 # Session management aliases
 alias ta='tmux attach-session -t'
