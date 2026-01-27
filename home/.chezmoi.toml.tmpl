@@ -14,6 +14,7 @@
 {{- $installOpencode := promptBoolOnce . "installOpencode" "Install OpenCode + oh-my-opencode (AI coding)" -}}
 {{- $installNerdFonts := promptBoolOnce . "installNerdFonts" "Install Nerd Fonts (for terminal icons)" -}}
 {{- $installStarship := promptBoolOnce . "installStarship" "Install Starship prompt (modern cross-shell prompt)" -}}
+{{- $setupReverseProxy := promptBoolOnce . "setupReverseProxy" "Setting up reverse proxy" -}}
 
 {{- /* OpenCode subscription options */ -}}
 {{- $opencodeClaudeMax := false -}}
@@ -72,6 +73,7 @@
     installOpencode = {{ $installOpencode }}
     installNerdFonts = {{ $installNerdFonts }}
     installStarship = {{ $installStarship }}
+    setupReverseProxy = {{ $setupReverseProxy }}
     
     # OpenCode subscriptions
     opencodeClaudeMax = {{ $opencodeClaudeMax }}
