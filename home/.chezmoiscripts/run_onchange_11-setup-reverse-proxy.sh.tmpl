@@ -12,15 +12,15 @@ set -euo pipefail
 
 echo "==> Setting up reverse proxy"
 
-# {{ $vpsHost := promptStringOnce . "vpsHost" "VPS hostname (e.g., vps.example.com)" }}
-# {{ $vpsUser := promptStringOnce . "vpsUser" "VPS username (e.g., user_on_vps)" }}
-# {{ $remotePort := promptStringOnce . "reverseProxyRemotePort" "Remote port on VPS (default: 2222)" | default "2222" }}
-# {{ $localPort := promptStringOnce . "reverseProxyLocalPort" "Local SSH port (default: 22)" | default "22" }}
+{{ $vpsHost := promptStringOnce . "vpsHost" "VPS hostname (e.g., vps.example.com)" }}
+{{ $vpsUser := promptStringOnce . "vpsUser" "VPS username (e.g., user_on_vps)" }}
+{{ $remotePort := promptStringOnce . "reverseProxyRemotePort" "Remote port on VPS (default: 2222)" | default "2222" }}
+{{ $localPort := promptStringOnce . "reverseProxyLocalPort" "Local SSH port (default: 22)" | default "22" }}
 
-VPS_HOST="# {{ $vpsHost }}"
-VPS_USER="# {{ $vpsUser }}"
-REMOTE_PORT="# {{ $remotePort }}"
-LOCAL_PORT="# {{ $localPort }}"
+VPS_HOST="{{ $vpsHost }}"
+VPS_USER="{{ $vpsUser }}"
+REMOTE_PORT="{{ $remotePort }}"
+LOCAL_PORT="{{ $localPort }}"
 
 if [ -z "$VPS_HOST" ] || [ -z "$VPS_USER" ]; then
     echo "❌ VPS host or user not configured"
