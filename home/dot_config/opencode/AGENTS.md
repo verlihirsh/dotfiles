@@ -93,6 +93,7 @@ lsp_diagnostics(filePath="<changed-file>", severity="error")
 ║  3. AFTER TASK COMPLETION:                                  ║
 ║     → mem0_add_memories(text="[save learnings]")           ║
 ║     → Report token efficiency (see §Token Budget)           ║
+║     → Report LSP usage vs skipped                           ║
 ║                                                             ║
 ║  ❌ VIOLATION = TASK FAILURE                                ║
 ╚═════════════════════════════════════════════════════════════╝
