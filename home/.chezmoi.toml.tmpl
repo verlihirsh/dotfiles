@@ -14,7 +14,25 @@
 {{- $installOpencode := promptBoolOnce . "installOpencode" "Install OpenCode + oh-my-opencode (AI coding)" -}}
 {{- $installNerdFonts := promptBoolOnce . "installNerdFonts" "Install Nerd Fonts (for terminal icons)" -}}
 {{- $installStarship := promptBoolOnce . "installStarship" "Install Starship prompt (modern cross-shell prompt)" -}}
-{{- $setupReverseProxy := promptBoolOnce . "setupReverseProxy" "Setting up reverse proxy" -}}
+{{- $setupReverseProxy := promptBoolOnce . "setupReverseProxy" "Setup SSH reverse proxy tunnel" -}}
+
+{{- /* Reverse proxy configuration */ -}}
+{{- $vpsHost := "" -}}
+{{- $vpsUser := "" -}}
+{{- $reverseProxyRemotePort := "2222" -}}
+{{- $reverseProxyLocalPort := "22" -}}
+{{- if $setupReverseProxy -}}
+{{-   $vpsHost = promptStringOnce . "vpsHost" "VPS hostname (e.g., vps.example.com)" -}}
+{{-   $vpsUser = promptStringOnce . "vpsUser" "VPS username (e.g., user_on_vps)" -}}
+{{-   $reverseProxyRemotePort = promptStringOnce . "reverseProxyRemotePort" "Remote port on VPS (default: 2222)" -}}
+{{-   if eq $reverseProxyRemotePort "" -}}
+{{-     $reverseProxyRemotePort = "2222" -}}
+{{-   end -}}
+{{-   $reverseProxyLocalPort = promptStringOnce . "reverseProxyLocalPort" "Local SSH port (default: 22)" -}}
+{{-   if eq $reverseProxyLocalPort "" -}}
+{{-     $reverseProxyLocalPort = "22" -}}
+{{-   end -}}
+{{- end -}}
 
 {{- /* OpenCode subscription options */ -}}
 {{- $opencodeClaudeMax := false -}}
@@ -74,6 +92,12 @@
     installNerdFonts = {{ $installNerdFonts }}
     installStarship = {{ $installStarship }}
     setupReverseProxy = {{ $setupReverseProxy }}
+    
+    # Reverse proxy configuration
+    vpsHost = {{ $vpsHost | quote }}
+    vpsUser = {{ $vpsUser | quote }}
+    reverseProxyRemotePort = {{ $reverseProxyRemotePort | quote }}
+    reverseProxyLocalPort = {{ $reverseProxyLocalPort | quote }}
     
     # OpenCode subscriptions
     opencodeClaudeMax = {{ $opencodeClaudeMax }}
