@@ -7,7 +7,7 @@ exit 0
 #
 # Post-install setup for Neovim
 # Neovim is installed via system deps script
-# jelvim config is installed via .chezmoiexternal.toml
+# jelvim config is installed via .chezmoiscripts/run_onchange_05-01-install-jelvim.sh
 #
 # Version: 1.1.0 - Added LSP extras integration
 # Hash: # {{ include "dot_config/nvim-lsp-extras/lsp-extras.lua.tmpl" | sha256sum }}
@@ -27,7 +27,7 @@ fi
 mkdir -p "$HOME/.local/share/nvim"
 mkdir -p "$HOME/.cache/nvim"
 
-# jelvim config is installed via .chezmoiexternal.toml to ~/.config/nvim
+# jelvim config is installed via script to ~/.config/nvim (ignored by chezmoi)
 
 echo "Neovim version: $(nvim --version | head -1)"
 echo "Config location: ~/.config/nvim (jelvim)"

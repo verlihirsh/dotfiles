@@ -1,0 +1,7 @@
+.oh-my-zsh/
+.tmux/plugins/
+.config/nvim/
+.local/bin/
+
+# Runtime/cache artifacts
+.oh-my-zsh/cache/
