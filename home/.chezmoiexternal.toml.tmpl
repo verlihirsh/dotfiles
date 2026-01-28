@@ -59,11 +59,20 @@
     refreshPeriod = "168h"
 {{- end }}
 
-{{- if (index . "installTmux" | default false) }}
-# Tmux Plugin Manager
-[".tmux/plugins/tpm"]
-    type = "git-repo"
-    url = "https://github.com/tmux-plugins/tpm.git"
+{{- /* CLI Tools - Selected via promptMultichoiceOnce */ -}}
+{{- /* Format in list: "toolname - description" */ -}}
+{{- $selectedCliTools := index . "selectedCliTools" | default list -}}
+
+{{- /* CLI Tools installed via external (binary downloads) */ -}}
+{{- /* Note: glow is now installed via package managers (brew/apt/dnf) in run_onchange_06-install-cli-tools.sh */ -}}
+
+{{- range $selectedCliTools }}
+{{- if hasPrefix "fx" . }}
+# fx - JSON viewer
+[".local/bin/fx"]
+    type = "file"
+    url = "https://github.com/antonmedv/fx/releases/latest/download/fx_{{ $.chezmoi.os }}_{{ $.chezmoi.arch }}"
+    executable = true
     refreshPeriod = "168h"
 {{- end }}
 
