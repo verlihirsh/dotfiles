@@ -7,7 +7,6 @@
 {{- $installPython := promptBoolOnce . "installPython" "Install Python via uv (fast, modern Python manager)" -}}
 {{- $installNode := promptBoolOnce . "installNode" "Install Node.js via fnm" -}}
 {{- $installNeovim := promptBoolOnce . "installNeovim" "Install Neovim with jelvim config" -}}
-{{- $installCliTools := promptBoolOnce . "installCliTools" "Install CLI tools (fzf, ripgrep, fd, bat, zoxide, etc.)" -}}
 {{- $installTmux := promptBoolOnce . "installTmux" "Install and configure tmux" -}}
 {{- $installDirenv := promptBoolOnce . "installDirenv" "Install direnv" -}}
 {{- $installLspServers := promptBoolOnce . "installLspServers" "Install LSP servers (for Neovim/editors)" -}}
@@ -15,6 +14,33 @@
 {{- $installNerdFonts := promptBoolOnce . "installNerdFonts" "Install Nerd Fonts (for terminal icons)" -}}
 {{- $installStarship := promptBoolOnce . "installStarship" "Install Starship prompt (modern cross-shell prompt)" -}}
 {{- $setupReverseProxy := promptBoolOnce . "setupReverseProxy" "Setup SSH reverse proxy tunnel" -}}
+
+{{- /* CLI Tools - Multi-select */ -}}
+{{- $cliToolChoices := list
+    "fzf - fuzzy finder"
+    "ripgrep - fast grep"
+    "fd - fast find"
+    "bat - cat with syntax highlighting"
+    "eza - modern ls"
+    "jq - JSON processor"
+    "htop - process viewer"
+    "tree - directory tree"
+    "zoxide - smart cd"
+    "neofetch - system info"
+    "glow - markdown reader"
+    "fx - JSON viewer"
+    "lazysql - database TUI"
+-}}
+{{- $defaultCliTools := list
+    "fzf - fuzzy finder"
+    "ripgrep - fast grep"
+    "fd - fast find"
+    "bat - cat with syntax highlighting"
+    "eza - modern ls"
+    "jq - JSON processor"
+    "zoxide - smart cd"
+-}}
+{{- $selectedCliTools := promptMultichoiceOnce . "selectedCliTools" "Select CLI tools to install (use arrow keys + space)" $cliToolChoices $defaultCliTools -}}
 
 {{- /* Reverse proxy configuration */ -}}
 {{- $vpsHost := "" -}}
@@ -84,7 +110,6 @@
     installPython = {{ $installPython }}
     installNode = {{ $installNode }}
     installNeovim = {{ $installNeovim }}
-    installCliTools = {{ $installCliTools }}
     installTmux = {{ $installTmux }}
     installDirenv = {{ $installDirenv }}
     installLspServers = {{ $installLspServers }}
@@ -92,6 +117,9 @@
     installNerdFonts = {{ $installNerdFonts }}
     installStarship = {{ $installStarship }}
     setupReverseProxy = {{ $setupReverseProxy }}
+    
+    # CLI Tools (multi-select)
+    selectedCliTools = {{ $selectedCliTools | toToml }}
     
     # Reverse proxy configuration
     vpsHost = {{ $vpsHost | quote }}

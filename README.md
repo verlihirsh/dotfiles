@@ -149,7 +149,7 @@ dotfiles-doctor
 | **uv** | Fast Python package and version manager (replaces pyenv, pip, poetry, pipx) |
 | **fnm** | Fast Node.js version manager |
 | **Neovim** | Editor with jelvim config |
-| **CLI tools** | fzf, ripgrep, fd, bat, eza, jq, htop |
+| **CLI tools** | Multi-select from 13 tools: fzf, ripgrep, fd, bat, eza, jq, htop, tree, zoxide, neofetch, glow, fx, lazysql |
 | **tmux** | Terminal multiplexer with sensible config |
 | **direnv** | Per-directory environment variables |
 | **LSP servers** | Language servers for Python, TypeScript, Go, Lua, Bash, YAML, Docker, Markdown |
@@ -196,13 +196,15 @@ Edit `~/.config/chezmoi/chezmoi.toml` to change tool versions or settings:
     installStarship = true
     installNerdFonts = true
     installPython = true
-    installFnm = true
+    installNode = true
     installNeovim = true
-    installCliTools = true
     installTmux = true
     installDirenv = true
     installLspServers = true
-    installOpenCode = true
+    installOpencode = true
+    
+    # CLI Tools (multi-select - use chezmoi init to change)
+    selectedCliTools = ["fzf - fuzzy finder", "ripgrep - fast grep", "bat - cat with syntax highlighting"]
     
     # Secrets
     secretsSourcePath = "/path/to/secrets-template"

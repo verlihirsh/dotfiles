@@ -33,9 +33,11 @@ else
     echo "uv already installed"
 fi
 
-# Ensure uv is up to date
+# Ensure uv is up to date (skip if installed via package manager)
 echo "Updating uv to latest version..."
-uv self update
+if ! uv self update 2>/dev/null; then
+    echo "uv update skipped (installed via package manager)"
+fi
 
 # Parse Python versions from config (supports space or comma separated)
 # Examples: "3.11 3.12 3.13" or "3.11, 3.12, 3.13" or just "3.12"
