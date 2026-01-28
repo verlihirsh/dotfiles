@@ -109,16 +109,10 @@ set -g pane-active-border-style "bg=default fg=magenta"
 # Plugins (via TPM)
 # =============================================================================
 
-# Plugin manager
-set -g @plugin 'tmux-plugins/tpm'
-
 # Sensible defaults
 set -g @plugin 'tmux-plugins/tmux-sensible'
 
 # Persist sessions across restarts
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
-
-# Initialize TPM (keep at the bottom)
-run '~/.tmux/plugins/tpm/tpm'
 {{- end }}
