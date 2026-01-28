@@ -66,3 +66,111 @@
     url = "https://github.com/tmux-plugins/tpm.git"
     refreshPeriod = "168h"
 {{- end }}
+
+{{- /* CLI Tools - Selected via promptMultichoiceOnce */ -}}
+{{- /* Format in list: "toolname - description" */ -}}
+{{- $selectedCliTools := index . "selectedCliTools" | default list -}}
+
+{{- /* CLI Tools installed via external (binary downloads) */ -}}
+{{- /* Note: glow is now installed via package managers (brew/apt/dnf) in run_onchange_06-install-cli-tools.sh */ -}}
+
+{{- range $selectedCliTools }}
+{{- if hasPrefix "fx" . }}
+# fx - JSON viewer
+[".local/bin/fx"]
+    type = "file"
+    url = "https://github.com/antonmedv/fx/releases/latest/download/fx_{{ $.chezmoi.os }}_{{ $.chezmoi.arch }}"
+    executable = true
+    refreshPeriod = "168h"
+{{- end }}
+{{- end }}
+
+{{- range $selectedCliTools }}
+{{- if hasPrefix "lazysql" . }}
+{{- if eq $.chezmoi.os "darwin" }}
+# lazysql - Terminal database client (macOS)
+[".local/bin/lazysql"]
+    type = "archive-file"
+    url = "https://github.com/jorgerojas26/lazysql/releases/latest/download/lazysql_Darwin_{{ if eq $.chezmoi.arch "arm64" }}arm64{{ else }}x86_64{{ end }}.tar.gz"
+    path = "lazysql"
+    executable = true
+    refreshPeriod = "168h"
+{{- else if eq $.chezmoi.os "linux" }}
+# lazysql - Terminal database client (Linux)
+[".local/bin/lazysql"]
+    type = "archive-file"
+    url = "https://github.com/jorgerojas26/lazysql/releases/latest/download/lazysql_Linux_{{ if eq $.chezmoi.arch "arm64" }}arm64{{ else }}x86_64{{ end }}.tar.gz"
+    path = "lazysql"
+    executable = true
+    refreshPeriod = "168h"
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- /* Additional CLI Tools */ -}}
+
+{{- range $selectedCliTools }}
+{{- if hasPrefix "numr" . }}
+{{- if eq $.chezmoi.os "darwin" }}
+# numr - Text calculator inspired by Numi (macOS)
+[".local/bin/numr"]
+    type = "archive-file"
+    url = "https://github.com/nasedkinpv/numr/releases/latest/download/numr-{{ if eq $.chezmoi.arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-apple-darwin.tar.gz"
+    path = "numr"
+    executable = true
+    refreshPeriod = "168h"
+{{- else if eq $.chezmoi.os "linux" }}
+# numr - Text calculator inspired by Numi (Linux)
+[".local/bin/numr"]
+    type = "archive-file"
+    url = "https://github.com/nasedkinpv/numr/releases/latest/download/numr-{{ if eq $.chezmoi.arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-unknown-linux-musl.tar.gz"
+    path = "numr"
+    executable = true
+    refreshPeriod = "168h"
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- range $selectedCliTools }}
+{{- if hasPrefix "regex-tui" . }}
+{{- if eq $.chezmoi.os "darwin" }}
+# regex-tui - Terminal UI for regex testing (macOS)
+[".local/bin/regex-tui"]
+    type = "archive-file"
+    url = "https://github.com/vitor-mariano/regex-tui/releases/latest/download/regex-tui_Darwin_{{ if eq $.chezmoi.arch "arm64" }}arm64{{ else }}x86_64{{ end }}.tar.gz"
+    path = "regex-tui"
+    executable = true
+    refreshPeriod = "168h"
+{{- else if eq $.chezmoi.os "linux" }}
+# regex-tui - Terminal UI for regex testing (Linux)
+[".local/bin/regex-tui"]
+    type = "archive-file"
+    url = "https://github.com/vitor-mariano/regex-tui/releases/latest/download/regex-tui_Linux_{{ if eq $.chezmoi.arch "arm64" }}arm64{{ else }}x86_64{{ end }}.tar.gz"
+    path = "regex-tui"
+    executable = true
+    refreshPeriod = "168h"
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- range $selectedCliTools }}
+{{- if hasPrefix "sshm" . }}
+{{- if eq $.chezmoi.os "darwin" }}
+# sshm - SSH connection manager (macOS)
+[".local/bin/sshm"]
+    type = "archive-file"
+    url = "https://github.com/Gu1llaum-3/sshm/releases/latest/download/sshm_Darwin_{{ if eq $.chezmoi.arch "arm64" }}arm64{{ else }}x86_64{{ end }}.tar.gz"
+    path = "sshm"
+    executable = true
+    refreshPeriod = "168h"
+{{- else if eq $.chezmoi.os "linux" }}
+# sshm - SSH connection manager (Linux)
+[".local/bin/sshm"]
+    type = "archive-file"
+    url = "https://github.com/Gu1llaum-3/sshm/releases/latest/download/sshm_Linux_{{ if eq $.chezmoi.arch "arm64" }}arm64{{ else }}x86_64{{ end }}.tar.gz"
+    path = "sshm"
+    executable = true
+    refreshPeriod = "168h"
+{{- end }}
+{{- end }}
+{{- end }}

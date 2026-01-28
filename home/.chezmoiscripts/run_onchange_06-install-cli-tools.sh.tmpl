@@ -1,27 +1,143 @@
 #!/usr/bin/env bash
 # chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
-# {{ if not (index . "installCliTools" | default false) }}
-# Skip - CLI tools not enabled
-exit 0
+#
+# Install selected CLI tools via system package managers
+# Tools are selected via promptMultichoiceOnce in .chezmoi.toml.tmpl
+#
+# Version: 3.0.0
+# {{ range .selectedCliTools }}
+# - {{ . }}
 # {{ end }}
-#
-# Install CLI tools (fzf, ripgrep, fd, bat, etc.)
-#
-# Version: 1.0.0
 
 set -euo pipefail
 
-echo "==> Installing CLI tools..."
+# {{ $selectedCliTools := .selectedCliTools | default list }}
+# {{ $hasFzf := false }}
+# {{ $hasRipgrep := false }}
+# {{ $hasFd := false }}
+# {{ $hasBat := false }}
+# {{ $hasEza := false }}
+# {{ $hasJq := false }}
+# {{ $hasHtop := false }}
+# {{ $hasTree := false }}
+# {{ $hasZoxide := false }}
+# {{ $hasNeofetch := false }}
+# {{ $hasGlow := false }}
+# {{ range $selectedCliTools }}
+# {{   if hasPrefix "fzf" . }}# {{ $hasFzf = true }}# {{ end }}
+# {{   if hasPrefix "ripgrep" . }}# {{ $hasRipgrep = true }}# {{ end }}
+# {{   if hasPrefix "fd" . }}# {{ $hasFd = true }}# {{ end }}
+# {{   if hasPrefix "bat" . }}# {{ $hasBat = true }}# {{ end }}
+# {{   if hasPrefix "eza" . }}# {{ $hasEza = true }}# {{ end }}
+# {{   if hasPrefix "jq" . }}# {{ $hasJq = true }}# {{ end }}
+# {{   if hasPrefix "htop" . }}# {{ $hasHtop = true }}# {{ end }}
+# {{   if hasPrefix "tree" . }}# {{ $hasTree = true }}# {{ end }}
+# {{   if hasPrefix "zoxide" . }}# {{ $hasZoxide = true }}# {{ end }}
+# {{   if hasPrefix "neofetch" . }}# {{ $hasNeofetch = true }}# {{ end }}
+# {{   if hasPrefix "glow" . }}# {{ $hasGlow = true }}# {{ end }}
+# {{ end }}
+
+# Check if any core tools are selected
+# {{ if not (or $hasFzf $hasRipgrep $hasFd $hasBat $hasEza $hasJq $hasHtop $hasTree $hasZoxide $hasNeofetch $hasGlow) }}
+echo "No core CLI tools selected, skipping..."
+exit 0
+# {{ end }}
+
+echo "==> Installing selected CLI tools..."
+
+# Build package list based on selections
+BREW_PACKAGES=""
+APT_PACKAGES=""
+DNF_PACKAGES=""
+PACMAN_PACKAGES=""
+
+# {{ if $hasFzf }}
+BREW_PACKAGES="$BREW_PACKAGES fzf"
+APT_PACKAGES="$APT_PACKAGES fzf"
+DNF_PACKAGES="$DNF_PACKAGES fzf"
+PACMAN_PACKAGES="$PACMAN_PACKAGES fzf"
+# {{ end }}
+
+# {{ if $hasRipgrep }}
+BREW_PACKAGES="$BREW_PACKAGES ripgrep"
+APT_PACKAGES="$APT_PACKAGES ripgrep"
+DNF_PACKAGES="$DNF_PACKAGES ripgrep"
+PACMAN_PACKAGES="$PACMAN_PACKAGES ripgrep"
+# {{ end }}
+
+# {{ if $hasFd }}
+BREW_PACKAGES="$BREW_PACKAGES fd"
+APT_PACKAGES="$APT_PACKAGES fd-find"
+DNF_PACKAGES="$DNF_PACKAGES fd-find"
+PACMAN_PACKAGES="$PACMAN_PACKAGES fd"
+# {{ end }}
+
+# {{ if $hasBat }}
+BREW_PACKAGES="$BREW_PACKAGES bat"
+APT_PACKAGES="$APT_PACKAGES bat"
+DNF_PACKAGES="$DNF_PACKAGES bat"
+PACMAN_PACKAGES="$PACMAN_PACKAGES bat"
+# {{ end }}
+
+# {{ if $hasEza }}
+BREW_PACKAGES="$BREW_PACKAGES eza"
+# eza installed separately on apt/dnf (not in standard repos)
+PACMAN_PACKAGES="$PACMAN_PACKAGES eza"
+# {{ end }}
+
+# {{ if $hasJq }}
+BREW_PACKAGES="$BREW_PACKAGES jq"
+APT_PACKAGES="$APT_PACKAGES jq"
+DNF_PACKAGES="$DNF_PACKAGES jq"
+PACMAN_PACKAGES="$PACMAN_PACKAGES jq"
+# {{ end }}
+
+# {{ if $hasHtop }}
+BREW_PACKAGES="$BREW_PACKAGES htop"
+APT_PACKAGES="$APT_PACKAGES htop"
+DNF_PACKAGES="$DNF_PACKAGES htop"
+PACMAN_PACKAGES="$PACMAN_PACKAGES htop"
+# {{ end }}
+
+# {{ if $hasTree }}
+BREW_PACKAGES="$BREW_PACKAGES tree"
+APT_PACKAGES="$APT_PACKAGES tree"
+DNF_PACKAGES="$DNF_PACKAGES tree"
+PACMAN_PACKAGES="$PACMAN_PACKAGES tree"
+# {{ end }}
+
+# {{ if $hasZoxide }}
+BREW_PACKAGES="$BREW_PACKAGES zoxide"
+# zoxide installed separately on apt (not in standard repos)
+DNF_PACKAGES="$DNF_PACKAGES zoxide"
+PACMAN_PACKAGES="$PACMAN_PACKAGES zoxide"
+# {{ end }}
+
+# {{ if $hasNeofetch }}
+BREW_PACKAGES="$BREW_PACKAGES neofetch"
+APT_PACKAGES="$APT_PACKAGES neofetch"
+DNF_PACKAGES="$DNF_PACKAGES neofetch"
+PACMAN_PACKAGES="$PACMAN_PACKAGES neofetch"
+# {{ end }}
+
+# {{ if $hasGlow }}
+BREW_PACKAGES="$BREW_PACKAGES glow"
+# glow installed separately on apt/dnf via Charm repo
+PACMAN_PACKAGES="$PACMAN_PACKAGES glow"
+# {{ end }}
 
 # {{- if eq .chezmoi.os "darwin" }}
 
 # macOS: Use Homebrew
 if command -v brew &>/dev/null; then
     echo "Installing CLI tools via Homebrew..."
-    brew install fzf ripgrep fd bat eza jq htop tree uv zoxide neofetch || true
+    # shellcheck disable=SC2086
+    brew install $BREW_PACKAGES || true
     
+# {{ if $hasFzf }}
     # Install fzf key bindings and completion
     "$(brew --prefix)/opt/fzf/install" --key-bindings --completion --no-update-rc --no-bash --no-fish 2>/dev/null || true
+# {{ end }}
 else
     echo "Homebrew not found, skipping CLI tools"
 fi
@@ -44,80 +160,143 @@ case "$PKG_MANAGER" in
     apt)
         echo "Installing CLI tools via apt..."
         sudo apt-get update -qq
-        sudo apt-get install -y -qq fzf ripgrep fd-find bat jq htop tree curl wget neofetch || true
+        # shellcheck disable=SC2086
+        sudo apt-get install -y -qq $APT_PACKAGES curl wget || true
         
-        # Install uv
-        if ! command -v uv &>/dev/null; then
-            echo "Installing uv..."
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-        fi
-        
-        # Install zoxide
-        if ! command -v zoxide &>/dev/null; then
-            echo "Installing zoxide..."
-            curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
-        fi
-        
-        # Create symlinks for fd and bat (Debian/Ubuntu use different names)
+# {{ if $hasFd }}
+        # Create symlink for fd (Debian/Ubuntu uses fdfind)
         mkdir -p "$HOME/.local/bin"
         if command -v fdfind &>/dev/null && [[ ! -L "$HOME/.local/bin/fd" ]]; then
             ln -sf "$(which fdfind)" "$HOME/.local/bin/fd"
         fi
+# {{ end }}
+
+# {{ if $hasBat }}
+        # Create symlink for bat (Debian/Ubuntu uses batcat)
+        mkdir -p "$HOME/.local/bin"
         if command -v batcat &>/dev/null && [[ ! -L "$HOME/.local/bin/bat" ]]; then
             ln -sf "$(which batcat)" "$HOME/.local/bin/bat"
         fi
-        
+# {{ end }}
+
+# {{ if $hasZoxide }}
+        # Install zoxide from GitHub (not in standard repos)
+        if ! command -v zoxide &>/dev/null; then
+            echo "Installing zoxide..."
+            curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+        fi
+# {{ end }}
+
+# {{ if $hasEza }}
         # Install eza from GitHub (not in standard repos)
         if ! command -v eza &>/dev/null; then
             echo "Installing eza from GitHub..."
+            mkdir -p "$HOME/.local/bin"
             EZA_VERSION=$(curl -s "https://api.github.com/repos/eza-community/eza/releases/latest" | grep -Po '"tag_name": "v\K[^"]*' || echo "0.18.0")
             curl -fsSL "https://github.com/eza-community/eza/releases/download/v${EZA_VERSION}/eza_x86_64-unknown-linux-gnu.tar.gz" | tar -xz -C "$HOME/.local/bin" 2>/dev/null || true
         fi
+# {{ end }}
+
+# {{ if $hasGlow }}
+        # Install glow via Charm apt repo
+        if ! command -v glow &>/dev/null; then
+            echo "Installing glow via Charm repo..."
+            sudo mkdir -p /etc/apt/keyrings
+            curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg 2>/dev/null || true
+            echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list >/dev/null
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq glow || true
+        fi
+# {{ end }}
         ;;
         
     dnf)
         echo "Installing CLI tools via dnf..."
-        sudo dnf install -y -q fzf ripgrep fd-find bat jq htop tree zoxide neofetch || true
+        # shellcheck disable=SC2086
+        sudo dnf install -y -q $DNF_PACKAGES || true
         
-        # Install uv
-        if ! command -v uv &>/dev/null; then
-            echo "Installing uv..."
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-        fi
-        
+# {{ if $hasEza }}
         # eza may not be in standard repos
         if ! command -v eza &>/dev/null; then
             echo "Installing eza from GitHub..."
-            EZA_VERSION=$(curl -s "https://api.github.com/repos/eza-community/eza/releases/latest" | grep -Po '"tag_name": "v\K[^"]*' || echo "0.18.0")
             mkdir -p "$HOME/.local/bin"
+            EZA_VERSION=$(curl -s "https://api.github.com/repos/eza-community/eza/releases/latest" | grep -Po '"tag_name": "v\K[^"]*' || echo "0.18.0")
             curl -fsSL "https://github.com/eza-community/eza/releases/download/v${EZA_VERSION}/eza_x86_64-unknown-linux-gnu.tar.gz" | tar -xz -C "$HOME/.local/bin" 2>/dev/null || true
         fi
+# {{ end }}
+
+# {{ if $hasGlow }}
+        # Install glow via Charm yum repo
+        if ! command -v glow &>/dev/null; then
+            echo "Installing glow via Charm repo..."
+            sudo tee /etc/yum.repos.d/charm.repo >/dev/null <<'CHARMREPO'
+[charm]
+name=Charm
+baseurl=https://repo.charm.sh/yum/
+enabled=1
+gpgcheck=1
+gpgkey=https://repo.charm.sh/yum/gpg.key
+CHARMREPO
+            sudo dnf install -y -q glow || true
+        fi
+# {{ end }}
         ;;
         
     pacman)
         echo "Installing CLI tools via pacman..."
-        sudo pacman -S --noconfirm --needed fzf ripgrep fd bat eza jq htop tree uv zoxide neofetch || true
+        # shellcheck disable=SC2086
+        sudo pacman -S --noconfirm --needed $PACMAN_PACKAGES || true
         ;;
 esac
 
+# {{ if $hasFzf }}
 # Install fzf key bindings if not present
 if [[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]]; then
     echo "fzf key bindings available at /usr/share/doc/fzf/examples/"
 fi
+# {{ end }}
 
 # {{- end }}
 
 # Verify installations
 echo ""
 echo "Installed tools:"
+# {{ if $hasFzf }}
 command -v fzf &>/dev/null && echo "  - fzf: $(fzf --version 2>/dev/null | head -1)"
+# {{ end }}
+# {{ if $hasRipgrep }}
 command -v rg &>/dev/null && echo "  - ripgrep: $(rg --version 2>/dev/null | head -1)"
+# {{ end }}
+# {{ if $hasFd }}
 command -v fd &>/dev/null && echo "  - fd: $(fd --version 2>/dev/null)"
+# {{ end }}
+# {{ if $hasBat }}
 command -v bat &>/dev/null && echo "  - bat: $(bat --version 2>/dev/null)"
+# {{ end }}
+# {{ if $hasEza }}
 command -v eza &>/dev/null && echo "  - eza: $(eza --version 2>/dev/null | head -1)"
+# {{ end }}
+# {{ if $hasJq }}
 command -v jq &>/dev/null && echo "  - jq: $(jq --version 2>/dev/null)"
-command -v uv &>/dev/null && echo "  - uv: $(uv --version 2>/dev/null)"
+# {{ end }}
+# {{ if $hasHtop }}
+command -v htop &>/dev/null && echo "  - htop: installed"
+# {{ end }}
+# {{ if $hasTree }}
+command -v tree &>/dev/null && echo "  - tree: installed"
+# {{ end }}
+# {{ if $hasZoxide }}
 command -v zoxide &>/dev/null && echo "  - zoxide: $(zoxide --version 2>/dev/null)"
+# {{ end }}
+# {{ if $hasNeofetch }}
 command -v neofetch &>/dev/null && echo "  - neofetch: installed"
+# {{ end }}
+# {{ if $hasGlow }}
+command -v glow &>/dev/null && echo "  - glow: $(glow --version 2>/dev/null | head -1)"
+# {{ end }}
 
-echo "==> CLI tools installed!"
+echo ""
+echo "==> CLI tools installation complete!"
+echo ""
+echo "Note: Additional tools (fx, lazysql, etc.) are managed via chezmoi external."
+echo "Run 'chezmoi apply' to install them."
