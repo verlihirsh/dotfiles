@@ -76,7 +76,6 @@ export PATH="$HOME/.opencode/bin:$HOME/.bun/bin:$PATH"
 # =============================================================================
 # CLI Tool Configuration
 # =============================================================================
-{{- if (index . "installCliTools" | default false) }}
 
 # zoxide (smart cd)
 if command -v zoxide &>/dev/null; then
@@ -140,7 +139,6 @@ else
     alias ll='ls -la'
     alias la='ls -A'
 fi
-{{- end }}
 
 # =============================================================================
 # Aliases
