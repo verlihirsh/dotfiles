@@ -94,8 +94,7 @@ wttr() {
   if (( age < ttl )); then
     cat "$cache_file"
   else
-    curl -fsS 'wttr.in/{Alicante,Reikiavik,Krasnoyarsk}?format=%27%l:+%c+
-%t+|+%f+|+%w+(%p)\n%27' \
+    curl -fsS 'wttr.in/{Alicante,Reikiavik,Krasnoyarsk}\?format=%27%l:+%c+%t+|+%f+|+%w+(%p)\n%27' \
       | tee "$cache_file"
   fi
 }
