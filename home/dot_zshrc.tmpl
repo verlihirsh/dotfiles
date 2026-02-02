@@ -73,6 +73,34 @@ zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*:descriptions' format '[%d]'
 
+
+wttr() {
+  local ttl=600  # seconds (10 min)
+  local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/wttr"
+  local cache_file="$cache_dir/wttr.txt"
+
+  mkdir -p "$cache_dir"
+
+  local now mtime age
+  now=$(date +%s)
+
+  if [[ -f "$cache_file" ]]; then
+    mtime=$(stat -f %m "$cache_file")
+    age=$(( now - mtime ))
+  else
+    age=$(( ttl + 1 ))
+  fi
+
+  if (( age < ttl )); then
+    cat "$cache_file"
+  else
+    curl -fsS 'wttr.in/{Alicante,Reikiavik,Krasnoyarsk}?format=%27%l:+%c+
+%t+|+%f+|+%w+(%p)\n%27' \
+      | tee "$cache_file"
+  fi
+}
+
+
 # =============================================================================
 # Plugin Configuration
 # =============================================================================
@@ -97,6 +125,10 @@ fi
 
 # TODO
 # We need to install asdf as a cli tool
+
+{{- if (index . "installAsdf" | default false) }}
+  export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+{{- end }}
 
 # =============================================================================
 # Local Configuration

@@ -3,8 +3,8 @@
 # Environment Variables
 # =============================================================================
 
-export EDITOR="{{ index . "editor" | default "nvim" }}"
-export VISUAL="{{ index . "editor" | default "nvim" }}"
+export EDITOR="{{ index . "editor" | default "vim" }}"
+export VISUAL="{{ index . "editor" | default "vim" }}"
 
 # Set locale only if available (prevents WSL/Linux errors)
 if locale -a 2>/dev/null | grep -qi "^en_US.UTF-8$\|^en_US.utf8$"; then
@@ -97,14 +97,14 @@ if command -v fzf &>/dev/null; then
     fi
     
     # UI options
-    FZF_PREVIEW_OPTS=""
-    if command -v fzf-preview.sh &>/dev/null; then
-        FZF_PREVIEW_OPTS=" --preview 'fzf-preview.sh {}'"
-    fi
-    export FZF_DEFAULT_OPTS=" \
-        --style=full \
-        --tmux=center,80%,60% \
-        --bind 'focus:transform-header:file'${FZF_PREVIEW_OPTS}"
+    ## FZF_PREVIEW_OPTS=""
+    ## if command -v fzf-preview.sh &>/dev/null; then
+    ##     FZF_PREVIEW_OPTS=" --preview 'fzf-preview.sh {}'"
+    ## fi
+    ## export FZF_DEFAULT_OPTS=" \
+    ##     --style=full \
+    ##     --tmux=center,80%,60% \
+    ##     --bind 'focus:transform-header:file'${FZF_PREVIEW_OPTS}"
     
     # fzf key bindings and completion
     {{- if eq .chezmoi.os "darwin" }}
@@ -168,12 +168,13 @@ alias h='history'
 alias j='jobs -l'
 alias cdc='~/.config'
 
-
+{{- if (index . "workspaceDir" | default false) }}
+alias cdw={{index . "workspaceDir" | quote }}
+{{- end}}
 
 {{- if (index . "installNeovim" | default false) }}
 alias vim='nvim'
 alias vi='nvim'
-
 {{- end }}
 
 # =============================================================================
@@ -188,7 +189,7 @@ mkcd() {
 # AI-assisted git commit
 gcama() {
     git add .
-    local commit_msg=$(opencode run --model github-copilot/claude-haiku-4.5 --format json "Check git diff and return commit message for this diff" | jq -r 'select(.type == "text") | .text' | tail -n 1)
+    local commit_msg=$(git diff --staged | mods -m gpt-5-mini --prompt "Generate a concise git commit message summarizing the following changes:")
     gcam "$commit_msg"
 }
 
@@ -220,16 +221,14 @@ extract() {
 # tmux Helpers
 # =============================================================================
 
+case "$TERM" in screen*|tmux*)
+    print -n -- "\e]0;$(hostname -s)\a"
+    ;;
+esac
+
 scratch() {
   tmux popup -E "vim ~/scratch.md +"
 }
-
-# Session management aliases
-alias ta='tmux attach-session -t'
-alias tl='tmux list-sessions'
-alias tn='tmux new-session -s'
-alias tk='tmux kill-session -t'
-alias ts='tmux switch-client -t'
 
 # Quick session with current directory name
 tcd() {

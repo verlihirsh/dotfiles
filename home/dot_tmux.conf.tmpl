@@ -30,6 +30,7 @@ set -g focus-events on
 set -g allow-passthrough on
 set -ga update-environment TERM
 set -ga update-environment TERM_PROGRAM
+set -g allow-rename on
 # =============================================================================
 # Window/Pane Settings
 # =============================================================================
@@ -75,9 +76,10 @@ bind r source-file ~/.tmux.conf \; display "Config reloaded!"
 bind c new-window -c "#{pane_current_path}"
 
 # fzf session/window picker with fzf popup
-bind f display-popup -E "tmux list-windows -a -F '#{session_name}:#{window_index} │ #{window_name}#{?window_active, ←,}#{?session_attached, [attached],}' | fzf --prompt='tmux > ' --preview='tmux capture-pane -t {1} -p 2>/dev/null | head -30' --preview-window=right:50%:wrap | cut -d' ' -f1 | xargs -I{} tmux switch-client -t {}"
+#bind f display-popup -E "tmux list-windows -a -F '#{session_name}:#{window_index} │ #{window_name}#{?window_active, ←,}#{?session_attached, [attached],}' | fzf --prompt='tmux > ' --preview='tmux capture-pane -t {1} -p 2>/dev/null | head -30' --preview-window=right:50%:wrap | cut -d' ' -f1 | xargs -I{} tmux switch-client -t {}"
 
-bind z display-popup -E "nvim ~/scratch.md +"
+bind n display-popup -E "nvim ~/scratch.md +"
+bind m display-popup "mods -C"
 
 # =============================================================================
 # Status Bar
@@ -91,6 +93,10 @@ set -g status-right-length 50
 
 set -g status-left '#[fg=#00ff00,bold]#S #[fg=#ffffff]| '
 set -g status-right '#[fg=#888888]%Y-%m-%d #[fg=#ffffff]%H:%M'
+
+set -g status-interval 60
+WEATHER='#(curl -s wttr.in/Alicante\?format\="%%l:+%%c%%20%%t%%60%%w&period=60")'
+set -g status-right "$WEATHER | #[fg=#888888]%Y-%m-%d #[fg=#ffffff]%H:%M"
 
 # Window status
 setw -g window-status-format ' #I:#W '
@@ -109,10 +115,18 @@ set -g pane-active-border-style "bg=default fg=magenta"
 # Plugins (via TPM)
 # =============================================================================
 
+set -g @plugin 'tmux-plugins/tpm'
+
 # Sensible defaults
 set -g @plugin 'tmux-plugins/tmux-sensible'
+
+# Command palette
+set -g @plugin 'sainnhe/tmux-fzf'
 
 # Persist sessions across restarts
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
+set -g @plugin 'alexwforsythe/tmux-which-key'
+
+run '~/.tmux/plugins/tpm/tpm'
 {{- end }}

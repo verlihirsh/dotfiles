@@ -8,7 +8,7 @@
     defaultBranch = main
 
 [core]
-    editor = {{ index . "editor" | default "nvim" }}
+    editor = {{ index . "editor" | default "vim" }}
     autocrlf = input
     excludesfile = ~/.gitignore_global
     pager = delta
@@ -22,6 +22,7 @@
 
 [fetch]
     prune = true
+    auto = true
 
 [diff]
     colorMoved = zebra
@@ -82,3 +83,10 @@
 [url "git@gitlab.com:"]
     insteadOf = gl:
     insteadOf = https://gitlab.com/
+
+[color]
+	ui = true
+
+[color "status"]
+	changed = blue normal bold
+	header = white normal dim
