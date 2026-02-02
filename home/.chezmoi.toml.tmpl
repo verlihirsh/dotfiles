@@ -14,6 +14,7 @@
 {{- $installNerdFonts := promptBoolOnce . "installNerdFonts" "Install Nerd Fonts (for terminal icons)" -}}
 {{- $installStarship := promptBoolOnce . "installStarship" "Install Starship prompt (modern cross-shell prompt)" -}}
 {{- $setupReverseProxy := promptBoolOnce . "setupReverseProxy" "Setup SSH reverse proxy tunnel" -}}
+{{- $workspaceDir := promptStringOnce . "workspaceDir" "Workspace directory (for projects, code, etc.)" -}}
 
 {{- /* CLI Tools - Multi-select */ -}}
 {{- $cliToolChoices := list
@@ -117,6 +118,7 @@
     installNerdFonts = {{ $installNerdFonts }}
     installStarship = {{ $installStarship }}
     setupReverseProxy = {{ $setupReverseProxy }}
+    workspaceDir = {{ $workspaceDir | quote }}
     
     # CLI Tools (multi-select)
     selectedCliTools = {{ $selectedCliTools | toToml }}
@@ -143,5 +145,15 @@
     sshKeyType = {{ $sshKeyType | quote }}
 
 [git]
-    autoCommit = false
+    autoCommit = true
     autoPush = false
+    commitMessageTemplate = {{ printf "%q" " {{ promptString \"Commit message\" }}" }}
+
+[merge]
+    command = "nvim"
+    args = [
+        "-d",
+        {{ printf "%q" "{{ .Destination }}" }},
+        {{ printf "%q" "{{ .Source }}" }},
+        {{ printf "%q" "{{ .Target }}" }},
+    ]
