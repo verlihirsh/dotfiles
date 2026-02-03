@@ -114,14 +114,11 @@ zstyle ':fzf-tab:*' show-group full
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 # Zoxide (smart cd)
-{{- if (index . "$hasZoxide" | default false) }}
 if command -v zoxide &>/dev/null; then
     eval "$(zoxide init zsh)"
 fi
-{{- end}}
 
-
-{{- if (index . "$hasAsdf" | default false) }}
+{{- if (index . "hasAsdf" | default false) }}
   export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 {{- end }}
 
