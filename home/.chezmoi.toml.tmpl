@@ -6,7 +6,40 @@
 {{- $installZsh := promptBoolOnce . "installZsh" (printf "Install zsh + oh-my-zsh%s" (ternary (printf " [current: %v]" .installZsh) "" (hasKey . "installZsh"))) -}}
 {{- $installPython := promptBoolOnce . "installPython" (printf "Install Python via uv (fast, modern Python manager)%s" (ternary (printf " [current: %v]" .installPython) "" (hasKey . "installPython"))) -}}
 {{- $installNode := promptBoolOnce . "installNode" (printf "Install Node.js via fnm%s" (ternary (printf " [current: %v]" .installNode) "" (hasKey . "installNode"))) -}}
-{{- $installNeovim := promptBoolOnce . "installNeovim" (printf "Install Neovim with jelvim config%s" (ternary (printf " [current: %v]" .installNeovim) "" (hasKey . "installNeovim"))) -}}
+{{- $installNeovim := promptBoolOnce . "installNeovim" (printf "Install Neovim%s" (ternary (printf " [current: %v]" .installNeovim) "" (hasKey . "installNeovim"))) -}}
+
+{{- /* Neovim configuration */ -}}
+{{- $nvimConfigRepo := "" -}}
+{{- $nvimConfigBranch := "main" -}}
+{{- $nvimInstallMethod := "package-manager" -}}
+{{- if $installNeovim -}}
+{{-   $nvimPrompt := "Neovim config git repo (e.g., https://github.com/verlihirsh/jelvim.git, leave empty to skip config)" -}}
+{{-   if hasKey . "nvimConfigRepo" -}}
+{{-     $nvimPrompt = printf "%s [%s]" $nvimPrompt .nvimConfigRepo -}}
+{{-   end -}}
+{{-   $nvimConfigRepo = promptStringOnce . "nvimConfigRepo" $nvimPrompt -}}
+{{-   if ne $nvimConfigRepo "" -}}
+{{-     $branchPrompt := "Git branch to use (default: main)" -}}
+{{-     if hasKey . "nvimConfigBranch" -}}
+{{-       $branchPrompt = printf "%s [%s]" $branchPrompt .nvimConfigBranch -}}
+{{-     end -}}
+{{-     $nvimConfigBranch = promptStringOnce . "nvimConfigBranch" $branchPrompt -}}
+{{-     if eq $nvimConfigBranch "" -}}
+{{-       $nvimConfigBranch = "main" -}}
+{{-     end -}}
+{{-   end -}}
+{{-   $nvimInstallChoices := list
+      "package-manager - Use system package manager (brew/apt/dnf/pacman)"
+      "appimage - Download AppImage (Linux only, latest stable)"
+      "build-from-source - Compile from source (latest features)"
+  -}}
+{{-   $methodPrompt := "Neovim installation method" -}}
+{{-   if hasKey . "nvimInstallMethod" -}}
+{{-     $methodPrompt = printf "%s [%s]" $methodPrompt .nvimInstallMethod -}}
+{{-   end -}}
+{{-   $nvimInstallMethodRaw := promptChoiceOnce . "nvimInstallMethod" $methodPrompt $nvimInstallChoices (index $nvimInstallChoices 0) -}}
+{{-   $nvimInstallMethod = regexReplaceAll " - .*$" $nvimInstallMethodRaw "" -}}
+{{- end -}}
 {{- $installTmux := promptBoolOnce . "installTmux" (printf "Install and configure tmux%s" (ternary (printf " [current: %v]" .installTmux) "" (hasKey . "installTmux"))) -}}
 {{- $installDirenv := promptBoolOnce . "installDirenv" (printf "Install direnv%s" (ternary (printf " [current: %v]" .installDirenv) "" (hasKey . "installDirenv"))) -}}
 {{- $installLspServers := promptBoolOnce . "installLspServers" (printf "Install LSP servers (for Neovim/editors)%s" (ternary (printf " [current: %v]" .installLspServers) "" (hasKey . "installLspServers"))) -}}
@@ -132,6 +165,9 @@
     installPython = {{ $installPython }}
     installNode = {{ $installNode }}
     installNeovim = {{ $installNeovim }}
+    nvimConfigRepo = {{ $nvimConfigRepo | quote }}
+    nvimConfigBranch = {{ $nvimConfigBranch | quote }}
+    nvimInstallMethod = {{ $nvimInstallMethod | quote }}
     installTmux = {{ $installTmux }}
     installDirenv = {{ $installDirenv }}
     installLspServers = {{ $installLspServers }}

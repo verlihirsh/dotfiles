@@ -51,11 +51,17 @@
     refreshPeriod = "168h"
 {{- end }}
 
-{{- if (index . "installNeovim" | default false) }}
-# Neovim config (jelvim)
+{{- $nvimConfigRepo := index . "nvimConfigRepo" | default "" -}}
+{{- $nvimConfigBranch := index . "nvimConfigBranch" | default "main" -}}
+{{- if and (index . "installNeovim" | default false) (ne $nvimConfigRepo "") }}
+# Neovim config (user-specified)
+# Changes to nvimConfigRepo will trigger automatic update
 [".config/nvim"]
     type = "git-repo"
-    url = "https://github.com/verlihirsh/jelvim.git"
+    url = {{ $nvimConfigRepo | quote }}
+{{-   if and (ne $nvimConfigBranch "") (ne $nvimConfigBranch "main") }}
+    revision = {{ $nvimConfigBranch | quote }}
+{{-   end }}
     refreshPeriod = "168h"
 {{- end }}
 

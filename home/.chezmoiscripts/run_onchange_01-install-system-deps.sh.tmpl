@@ -44,9 +44,7 @@ brew install zsh
 brew install openssl readline sqlite3 xz zlib tcl-tk
 # {{- end }}
 
-# {{- if (index . "installNeovim" | default false) }}
-brew install neovim
-# {{- end }}
+# Neovim is now installed via run_onchange_05-00-install-neovim.sh.tmpl
 
 # {{- else if eq .chezmoi.os "linux" }}
 
@@ -96,14 +94,7 @@ case "$PKG_MANAGER" in
         sudo apt-get install -y -qq unzip
         # {{- end }}
         
-        # {{- if (index . "installNeovim" | default false) }}
-        # Try to get latest Neovim
-        if command -v add-apt-repository &>/dev/null; then
-            sudo add-apt-repository -y ppa:neovim-ppa/unstable 2>/dev/null || true
-            sudo apt-get update -qq
-        fi
-        sudo apt-get install -y -qq neovim || true
-        # {{- end }}
+        # Neovim is now installed via run_onchange_05-00-install-neovim.sh.tmpl
         ;;
         
     dnf)
@@ -135,9 +126,7 @@ case "$PKG_MANAGER" in
         sudo dnf install -y -q unzip
         # {{- end }}
         
-        # {{- if (index . "installNeovim" | default false) }}
-        sudo dnf install -y -q neovim || true
-        # {{- end }}
+        # Neovim is now installed via run_onchange_05-00-install-neovim.sh.tmpl
         ;;
         
     pacman)
@@ -159,9 +148,7 @@ case "$PKG_MANAGER" in
         sudo pacman -S --noconfirm --needed unzip
         # {{- end }}
         
-        # {{- if (index . "installNeovim" | default false) }}
-        sudo pacman -S --noconfirm --needed neovim
-        # {{- end }}
+        # Neovim is now installed via run_onchange_05-00-install-neovim.sh.tmpl
         ;;
 esac
 
