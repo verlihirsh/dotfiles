@@ -76,7 +76,6 @@ export PATH="$HOME/.opencode/bin:$HOME/.bun/bin:$PATH"
 # =============================================================================
 # CLI Tool Configuration
 # =============================================================================
-{{- if (index . "installCliTools" | default false) }}
 
 # zoxide (smart cd)
 if command -v zoxide &>/dev/null; then
@@ -97,14 +96,14 @@ if command -v fzf &>/dev/null; then
     fi
     
     # UI options
-    ## FZF_PREVIEW_OPTS=""
-    ## if command -v fzf-preview.sh &>/dev/null; then
-    ##     FZF_PREVIEW_OPTS=" --preview 'fzf-preview.sh {}'"
-    ## fi
-    ## export FZF_DEFAULT_OPTS=" \
-    ##     --style=full \
-    ##     --tmux=center,80%,60% \
-    ##     --bind 'focus:transform-header:file'${FZF_PREVIEW_OPTS}"
+    FZF_PREVIEW_OPTS=""
+    if command -v fzf-preview.sh &>/dev/null; then
+        FZF_PREVIEW_OPTS=" --preview 'fzf-preview.sh {}'"
+    fi
+    export FZF_DEFAULT_OPTS=" \
+        --style=full \
+        --tmux=center,80%,60% \
+        --bind 'focus:transform-header:file'${FZF_PREVIEW_OPTS}"
     
     # fzf key bindings and completion
     {{- if eq .chezmoi.os "darwin" }}
@@ -140,7 +139,6 @@ else
     alias ll='ls -la'
     alias la='ls -A'
 fi
-{{- end }}
 
 # =============================================================================
 # Aliases
