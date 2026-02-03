@@ -1,7 +1,4 @@
 # ~/.config/gh-dash/config.yml - managed by chezmoi
-
-{{- if  (index . "installGhDash" | default false) }}
-
 prSections:
     - title: My PRs
       filters: is:open author:@me
@@ -101,4 +98,3 @@ theme:
         member: ""
         owner: ""
         unknownrole: "󰭙"
-{{- end}}
