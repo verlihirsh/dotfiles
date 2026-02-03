@@ -15,7 +15,6 @@
 {{- $installStarship := promptBoolOnce . "installStarship" "Install Starship prompt (modern cross-shell prompt)" -}}
 {{- $setupReverseProxy := promptBoolOnce . "setupReverseProxy" "Setup SSH reverse proxy tunnel" -}}
 {{- $workspaceDir := promptStringOnce . "workspaceDir" "Workspace directory (for projects, code, etc.)" -}}
-{{- $installAsdf := promptBoolOnce . "installAsdf" "Install asdf version manager" -}}
 
 {{- /* CLI Tools - Multi-select */ -}}
 {{- $cliToolChoices := list
@@ -32,6 +31,9 @@
     "glow - markdown reader"
     "fx - JSON viewer"
     "lazysql - database TUI"
+    "asdf - version manager"
+    "gh - GitHub CLI"
+    "gh-dash - GitHub CLI dashboard"
 -}}
 {{- $defaultCliTools := list
     "fzf - fuzzy finder"
@@ -120,7 +122,6 @@
     installStarship = {{ $installStarship }}
     setupReverseProxy = {{ $setupReverseProxy }}
     workspaceDir = {{ $workspaceDir | quote }}
-    installAsdf = {{ $installAsdf }}
     
     # CLI Tools (multi-select)
     selectedCliTools = {{ $selectedCliTools | toToml }}
