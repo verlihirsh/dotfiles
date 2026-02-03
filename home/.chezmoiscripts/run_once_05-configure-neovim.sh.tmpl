@@ -41,6 +41,17 @@ if [[ -f "$LSP_EXTRAS_SRC" ]]; then
     # Ensure plugins directory exists
     mkdir -p "$HOME/.config/nvim/lua/plugins"
     
+    # Check if destination exists and differs
+    if [[ -f "$LSP_EXTRAS_DST" ]]; then
+        if ! diff -q "$LSP_EXTRAS_SRC" "$LSP_EXTRAS_DST" &>/dev/null; then
+            echo "LSP extras file differs from source. Creating backup..."
+            cp "$LSP_EXTRAS_DST" "${LSP_EXTRAS_DST}.backup.$(date +%Y%m%d_%H%M%S)"
+            echo "Backup created: ${LSP_EXTRAS_DST}.backup.$(date +%Y%m%d_%H%M%S)"
+        else
+            echo "LSP extras already up to date"
+        fi
+    fi
+    
     # Copy LSP extras (not symlink - keeps jelvim git clean)
     cp "$LSP_EXTRAS_SRC" "$LSP_EXTRAS_DST"
     echo "Installed LSP extras plugin: $LSP_EXTRAS_DST"
