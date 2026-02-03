@@ -7,11 +7,31 @@ exit 0
 #
 # Install LSP servers for Neovim/editors
 #
-# Version: 1.0.1
+# Version: 1.1.0 - Added category selection support
 
 set -euo pipefail
 
 echo "==> Installing LSP servers..."
+
+# {{ $selectedLsps := .selectedLsps | default list }}
+# {{ $hasPythonLsps := false }}
+# {{ $hasJsLsps := false }}
+# {{ $hasGoLsp := false }}
+# {{ $hasLuaLsp := false }}
+# {{ $hasOtherLsps := false }}
+# {{ range $selectedLsps }}
+# {{   if hasPrefix "Python" . }}# {{ $hasPythonLsps = true }}# {{ end }}
+# {{   if hasPrefix "JavaScript" . }}# {{ $hasJsLsps = true }}# {{ end }}
+# {{   if hasPrefix "Go" . }}# {{ $hasGoLsp = true }}# {{ end }}
+# {{   if hasPrefix "Lua" . }}# {{ $hasLuaLsp = true }}# {{ end }}
+# {{   if hasPrefix "Shell" . }}# {{ $hasOtherLsps = true }}# {{ end }}
+# {{ end }}
+
+# Check if any LSPs are selected
+# {{ if not (or $hasPythonLsps $hasJsLsps $hasGoLsp $hasLuaLsp $hasOtherLsps) }}
+echo "No LSP servers selected, skipping..."
+exit 0
+# {{ end }}
 
 # Ensure ~/.local/bin exists
 mkdir -p "$HOME/.local/bin"
@@ -34,6 +54,8 @@ fi
 # =============================================================================
 # Python LSPs (via uv)
 # =============================================================================
+
+# {{ if $hasPythonLsps }}
 
 install_python_lsp() {
     local name="$1"
@@ -59,9 +81,16 @@ install_python_lsp "ruff" "ruff"
 # Python LSP Server (alternative to pyright, more feature-rich)
 install_python_lsp "python-lsp-server" "python-lsp-server[all]"
 
+# {{ else }}
+echo ""
+echo "⏭️  Python LSPs not selected, skipping..."
+# {{ end }}
+
 # =============================================================================
 # JavaScript/TypeScript LSPs (via npm)
 # =============================================================================
+
+# {{ if $hasJsLsps }}
 
 install_npm_lsp() {
     local name="$1"
@@ -102,9 +131,16 @@ install_npm_lsp "emmet-ls" "emmet-ls"
 # Prettier (formatter)
 install_npm_lsp "prettier" "prettier"
 
+# {{ else }}
+echo ""
+echo "⏭️  JavaScript/TypeScript LSPs not selected, skipping..."
+# {{ end }}
+
 # =============================================================================
 # Go LSP
 # =============================================================================
+
+# {{ if $hasGoLsp }}
 
 echo ""
 echo "📦 Go LSP server..."
@@ -116,9 +152,16 @@ else
     echo "⚠️  go not found, skipping gopls"
 fi
 
+# {{ else }}
+echo ""
+echo "⏭️  Go LSP not selected, skipping..."
+# {{ end }}
+
 # =============================================================================
 # Lua LSP
 # =============================================================================
+
+# {{ if $hasLuaLsp }}
 
 echo ""
 echo "📦 Lua LSP server..."
@@ -158,9 +201,31 @@ fi
 
 # {{- end }}
 
+# {{ else }}
+echo ""
+echo "⏭️  Lua LSP not selected, skipping..."
+# {{ end }}
+
 # =============================================================================
 # Bash LSP
 # =============================================================================
+
+# {{ if $hasOtherLsps }}
+
+# Define install_npm_lsp if not already defined (in case JS/TS LSPs were skipped)
+# {{ if not $hasJsLsps }}
+install_npm_lsp() {
+    local name="$1"
+    local package="$2"
+    
+    if command -v npm &>/dev/null; then
+        echo "Installing $name via npm..."
+        npm install -g "$package" 2>/dev/null || true
+    else
+        echo "⚠️  npm not found, skipping $name"
+    fi
+}
+# {{ end }}
 
 echo ""
 echo "📦 Bash LSP server..."
@@ -215,6 +280,11 @@ if ! command -v marksman &>/dev/null; then
 fi
 # {{- end }}
 
+# {{ else }}
+echo ""
+echo "⏭️  Shell/YAML/Docker/Markdown LSPs not selected, skipping..."
+# {{ end }}
+
 # =============================================================================
 # Summary
 # =============================================================================
@@ -224,24 +294,36 @@ echo "==> LSP servers installation complete!"
 echo ""
 echo "Installed LSP servers:"
 
+# {{ if $hasPythonLsps }}
 # Python
 command -v pyright &>/dev/null && echo "  ✓ pyright (Python)"
 command -v ruff &>/dev/null && echo "  ✓ ruff (Python linter/formatter)"
 command -v pylsp &>/dev/null && echo "  ✓ python-lsp-server"
+# {{ end }}
 
+# {{ if $hasJsLsps }}
 # JS/TS
 command -v typescript-language-server &>/dev/null && echo "  ✓ typescript-language-server"
 command -v vue-language-server &>/dev/null && echo "  ✓ vue-language-server"
 command -v svelteserver &>/dev/null && echo "  ✓ svelte-language-server"
 command -v vscode-eslint-language-server &>/dev/null && echo "  ✓ eslint-lsp"
 command -v tailwindcss-language-server &>/dev/null && echo "  ✓ tailwindcss-language-server"
+# {{ end }}
 
+# {{ if $hasGoLsp }}
 # Others
 command -v gopls &>/dev/null && echo "  ✓ gopls (Go)"
+# {{ end }}
+
+# {{ if $hasLuaLsp }}
 command -v lua-language-server &>/dev/null && echo "  ✓ lua-language-server"
+# {{ end }}
+
+# {{ if $hasOtherLsps }}
 command -v bash-language-server &>/dev/null && echo "  ✓ bash-language-server"
 command -v yaml-language-server &>/dev/null && echo "  ✓ yaml-language-server"
 command -v docker-langserver &>/dev/null && echo "  ✓ dockerfile-language-server"
 command -v marksman &>/dev/null && echo "  ✓ marksman (Markdown)"
+# {{ end }}
 
 echo ""

@@ -6,11 +6,12 @@ exit 0
 # {{ end }}
 #
 # Post-install setup for Neovim
-# Neovim is installed via system deps script
-# jelvim config is installed via .chezmoiscripts/run_onchange_05-01-install-jelvim.sh
+# Neovim binary is installed via run_onchange_05-00-install-neovim.sh
+# Neovim config is cloned via .chezmoiexternal.toml (if nvimConfigRepo is set)
 #
-# Version: 1.1.0 - Added LSP extras integration
+# Version: 1.2.0 - Added support for configurable Neovim config repos
 # Hash: # {{ include "dot_config/nvim-lsp-extras/lsp-extras.lua.tmpl" | sha256sum }}
+# Config: # {{ index . "nvimConfigRepo" | default "" | sha256sum }}
 
 set -euo pipefail
 
@@ -18,7 +19,7 @@ echo "==> Configuring Neovim..."
 
 # Ensure nvim is available
 if ! command -v nvim &>/dev/null; then
-    echo "Neovim not found in PATH. It should be installed via system dependencies."
+    echo "Neovim not found in PATH. It should be installed via run_onchange_05-00-install-neovim.sh."
     echo "Skipping Neovim configuration."
     exit 0
 fi
@@ -27,21 +28,55 @@ fi
 mkdir -p "$HOME/.local/share/nvim"
 mkdir -p "$HOME/.cache/nvim"
 
-# jelvim config is installed via script to ~/.config/nvim (ignored by chezmoi)
+# Show config info
+NVIM_CONFIG_DIR="$HOME/.config/nvim"
+NVIM_CONFIG_REPO="# {{ index . "nvimConfigRepo" | default "" }}"
+NVIM_CONFIG_BRANCH="# {{ index . "nvimConfigBranch" | default "main" }}"
+
+if [[ -d "$NVIM_CONFIG_DIR" && -n "$NVIM_CONFIG_REPO" ]]; then
+    echo "Config location: $NVIM_CONFIG_DIR"
+    echo "Config repo: $NVIM_CONFIG_REPO"
+    echo "Config branch: $NVIM_CONFIG_BRANCH"
+    
+    # Show which config is being used
+    if [[ -f "$NVIM_CONFIG_DIR/README.md" ]]; then
+        echo "Config README:"
+        head -5 "$NVIM_CONFIG_DIR/README.md" 2>/dev/null || true
+    fi
+elif [[ -z "$NVIM_CONFIG_REPO" ]]; then
+    echo "No Neovim config repo specified. Using vanilla Neovim."
+    echo "To add a config later, run: chezmoi init --prompt"
+fi
 
 echo "Neovim version: $(nvim --version | head -1)"
-echo "Config location: ~/.config/nvim (jelvim)"
 
-# Install LSP extras plugin (extends jelvim with additional LSP servers)
+# Install LSP extras plugin (extends config with additional LSP servers)
 # {{ if (index . "installLspServers" | default false) }}
 LSP_EXTRAS_SRC="$HOME/.config/nvim-lsp-extras/lsp-extras.lua"
 LSP_EXTRAS_DST="$HOME/.config/nvim/lua/plugins/lsp-extras.lua"
 
 if [[ -f "$LSP_EXTRAS_SRC" ]]; then
+    # Only install if nvim config exists
+    if [[ ! -d "$NVIM_CONFIG_DIR" ]]; then
+        echo "Warning: Neovim config directory not found. Skipping LSP extras."
+        exit 0
+    fi
+    
     # Ensure plugins directory exists
     mkdir -p "$HOME/.config/nvim/lua/plugins"
     
-    # Copy LSP extras (not symlink - keeps jelvim git clean)
+    # Check if destination exists and differs
+    if [[ -f "$LSP_EXTRAS_DST" ]]; then
+        if ! diff -q "$LSP_EXTRAS_SRC" "$LSP_EXTRAS_DST" &>/dev/null; then
+            echo "LSP extras file differs from source. Creating backup..."
+            cp "$LSP_EXTRAS_DST" "${LSP_EXTRAS_DST}.backup.$(date +%Y%m%d_%H%M%S)"
+            echo "Backup created: ${LSP_EXTRAS_DST}.backup.$(date +%Y%m%d_%H%M%S)"
+        else
+            echo "LSP extras already up to date"
+        fi
+    fi
+    
+    # Copy LSP extras (not symlink - keeps config git clean)
     cp "$LSP_EXTRAS_SRC" "$LSP_EXTRAS_DST"
     echo "Installed LSP extras plugin: $LSP_EXTRAS_DST"
 else
@@ -59,3 +94,4 @@ if [[ -f "$HOME/.config/nvim/init.lua" ]]; then
 fi
 
 echo "==> Neovim configured!"
+

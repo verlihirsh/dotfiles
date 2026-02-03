@@ -30,6 +30,60 @@ fi
 PLIST_PATH="$HOME/Library/LaunchAgents/com.user.ssh-reverse-proxy.plist"
 mkdir -p "$HOME/Library/LaunchAgents"
 
+# Create backup if file exists and differs
+if [[ -f "$PLIST_PATH" ]]; then
+    echo "Reverse proxy service already exists. Checking for changes..."
+    
+    # Generate new config content
+    NEW_CONTENT=$(cat <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.user.ssh-reverse-proxy</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/ssh</string>
+        <string>-N</string>
+        <string>-T</string>
+        <string>-o</string>
+        <string>ServerAliveInterval=30</string>
+        <string>-o</string>
+        <string>ServerAliveCountMax=3</string>
+        <string>-o</string>
+        <string>ExitOnForwardFailure=yes</string>
+        <string>-R</string>
+        <string>127.0.0.1:${REMOTE_PORT}:localhost:${LOCAL_PORT}</string>
+        <string>${VPS_USER}@${VPS_HOST}</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>$HOME/Library/Logs/ssh-reverse-proxy.log</string>
+    <key>StandardErrorPath</key>
+    <string>$HOME/Library/Logs/ssh-reverse-proxy.err</string>
+</dict>
+</plist>
+EOF
+)
+    
+    # Check if content differs
+    if ! echo "$NEW_CONTENT" | diff -q - "$PLIST_PATH" &>/dev/null; then
+        echo "Configuration differs. Creating backup..."
+        cp "$PLIST_PATH" "${PLIST_PATH}.backup.$(date +%Y%m%d_%H%M%S)"
+        echo "Backup created: ${PLIST_PATH}.backup.$(date +%Y%m%d_%H%M%S)"
+    else
+        echo "Configuration unchanged, skipping..."
+        exit 0
+    fi
+fi
+
 cat > "$PLIST_PATH" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -87,6 +141,43 @@ echo "  Logs:   tail -f ~/Library/Logs/ssh-reverse-proxy.{log,err}"
 # Linux: Create systemd service
 SERVICE_FILE="$HOME/.config/systemd/user/ssh-reverse-proxy.service"
 mkdir -p "$HOME/.config/systemd/user"
+
+# Create backup if file exists and differs
+if [[ -f "$SERVICE_FILE" ]]; then
+    echo "Reverse proxy service already exists. Checking for changes..."
+    
+    # Generate new config content
+    NEW_CONTENT=$(cat <<EOF
+[Unit]
+Description=SSH Reverse Proxy Tunnel
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/ssh -N -T \\
+    -o ServerAliveInterval=30 \\
+    -o ServerAliveCountMax=3 \\
+    -o ExitOnForwardFailure=yes \\
+    -R 127.0.0.1:${REMOTE_PORT}:localhost:${LOCAL_PORT} \\
+    ${VPS_USER}@${VPS_HOST}
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
+EOF
+)
+    
+    # Check if content differs
+    if ! echo "$NEW_CONTENT" | diff -q - "$SERVICE_FILE" &>/dev/null; then
+        echo "Configuration differs. Creating backup..."
+        cp "$SERVICE_FILE" "${SERVICE_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
+        echo "Backup created: ${SERVICE_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
+    else
+        echo "Configuration unchanged, skipping..."
+        exit 0
+    fi
+fi
 
 cat > "$SERVICE_FILE" <<EOF
 [Unit]

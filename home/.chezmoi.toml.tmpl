@@ -1,20 +1,53 @@
 {{- /* User identity */ -}}
-{{- $name := promptStringOnce . "name" "Your full name" -}}
-{{- $email := promptStringOnce . "email" "Your email address" -}}
+{{- $name := promptStringOnce . "name" (printf "Your full name%s" (ternary (printf " [%s]" .name) "" (hasKey . "name"))) -}}
+{{- $email := promptStringOnce . "email" (printf "Your email address%s" (ternary (printf " [%s]" .email) "" (hasKey . "email"))) -}}
 
 {{- /* Tool selections */ -}}
-{{- $installZsh := promptBoolOnce . "installZsh" "Install zsh + oh-my-zsh" -}}
-{{- $installPython := promptBoolOnce . "installPython" "Install Python via uv (fast, modern Python manager)" -}}
-{{- $installNode := promptBoolOnce . "installNode" "Install Node.js via fnm" -}}
-{{- $installNeovim := promptBoolOnce . "installNeovim" "Install Neovim with jelvim config" -}}
-{{- $installTmux := promptBoolOnce . "installTmux" "Install and configure tmux" -}}
-{{- $installDirenv := promptBoolOnce . "installDirenv" "Install direnv" -}}
-{{- $installLspServers := promptBoolOnce . "installLspServers" "Install LSP servers (for Neovim/editors)" -}}
-{{- $installOpencode := promptBoolOnce . "installOpencode" "Install OpenCode + oh-my-opencode (AI coding)" -}}
-{{- $installNerdFonts := promptBoolOnce . "installNerdFonts" "Install Nerd Fonts (for terminal icons)" -}}
-{{- $installStarship := promptBoolOnce . "installStarship" "Install Starship prompt (modern cross-shell prompt)" -}}
-{{- $setupReverseProxy := promptBoolOnce . "setupReverseProxy" "Setup SSH reverse proxy tunnel" -}}
-{{- $workspaceDir := promptStringOnce . "workspaceDir" "Workspace directory (for projects, code, etc.)" -}}
+{{- $installZsh := promptBoolOnce . "installZsh" (printf "Install zsh + oh-my-zsh%s" (ternary (printf " [current: %v]" .installZsh) "" (hasKey . "installZsh"))) -}}
+{{- $installPython := promptBoolOnce . "installPython" (printf "Install Python via uv (fast, modern Python manager)%s" (ternary (printf " [current: %v]" .installPython) "" (hasKey . "installPython"))) -}}
+{{- $installNode := promptBoolOnce . "installNode" (printf "Install Node.js via fnm%s" (ternary (printf " [current: %v]" .installNode) "" (hasKey . "installNode"))) -}}
+{{- $installNeovim := promptBoolOnce . "installNeovim" (printf "Install Neovim%s" (ternary (printf " [current: %v]" .installNeovim) "" (hasKey . "installNeovim"))) -}}
+
+{{- /* Neovim configuration */ -}}
+{{- $nvimConfigRepo := "" -}}
+{{- $nvimConfigBranch := "main" -}}
+{{- $nvimInstallMethod := "package-manager" -}}
+{{- if $installNeovim -}}
+{{-   $nvimPrompt := "Neovim config git repo (e.g., https://github.com/verlihirsh/jelvim.git, leave empty to skip config)" -}}
+{{-   if hasKey . "nvimConfigRepo" -}}
+{{-     $nvimPrompt = printf "%s [%s]" $nvimPrompt .nvimConfigRepo -}}
+{{-   end -}}
+{{-   $nvimConfigRepo = promptStringOnce . "nvimConfigRepo" $nvimPrompt -}}
+{{-   if ne $nvimConfigRepo "" -}}
+{{-     $branchPrompt := "Git branch to use (default: main)" -}}
+{{-     if hasKey . "nvimConfigBranch" -}}
+{{-       $branchPrompt = printf "%s [%s]" $branchPrompt .nvimConfigBranch -}}
+{{-     end -}}
+{{-     $nvimConfigBranch = promptStringOnce . "nvimConfigBranch" $branchPrompt -}}
+{{-     if eq $nvimConfigBranch "" -}}
+{{-       $nvimConfigBranch = "main" -}}
+{{-     end -}}
+{{-   end -}}
+{{-   $nvimInstallChoices := list
+      "package-manager - Use system package manager (brew/apt/dnf/pacman)"
+      "appimage - Download AppImage (Linux only, latest stable)"
+      "build-from-source - Compile from source (latest features)"
+  -}}
+{{-   $methodPrompt := "Neovim installation method" -}}
+{{-   if hasKey . "nvimInstallMethod" -}}
+{{-     $methodPrompt = printf "%s [%s]" $methodPrompt .nvimInstallMethod -}}
+{{-   end -}}
+{{-   $nvimInstallMethodRaw := promptChoiceOnce . "nvimInstallMethod" $methodPrompt $nvimInstallChoices (index $nvimInstallChoices 0) -}}
+{{-   $nvimInstallMethod = regexReplaceAll " - .*$" $nvimInstallMethodRaw "" -}}
+{{- end -}}
+{{- $installTmux := promptBoolOnce . "installTmux" (printf "Install and configure tmux%s" (ternary (printf " [current: %v]" .installTmux) "" (hasKey . "installTmux"))) -}}
+{{- $installDirenv := promptBoolOnce . "installDirenv" (printf "Install direnv%s" (ternary (printf " [current: %v]" .installDirenv) "" (hasKey . "installDirenv"))) -}}
+{{- $installLspServers := promptBoolOnce . "installLspServers" (printf "Install LSP servers (for Neovim/editors)%s" (ternary (printf " [current: %v]" .installLspServers) "" (hasKey . "installLspServers"))) -}}
+{{- $installOpencode := promptBoolOnce . "installOpencode" (printf "Install OpenCode + oh-my-opencode (AI coding)%s" (ternary (printf " [current: %v]" .installOpencode) "" (hasKey . "installOpencode"))) -}}
+{{- $installNerdFonts := promptBoolOnce . "installNerdFonts" (printf "Install Nerd Fonts (for terminal icons)%s" (ternary (printf " [current: %v]" .installNerdFonts) "" (hasKey . "installNerdFonts"))) -}}
+{{- $installStarship := promptBoolOnce . "installStarship" (printf "Install Starship prompt (modern cross-shell prompt)%s" (ternary (printf " [current: %v]" .installStarship) "" (hasKey . "installStarship"))) -}}
+{{- $setupReverseProxy := promptBoolOnce . "setupReverseProxy" (printf "Setup SSH reverse proxy tunnel%s" (ternary (printf " [current: %v]" .setupReverseProxy) "" (hasKey . "setupReverseProxy"))) -}}
+{{- $workspaceDir := promptStringOnce . "workspaceDir" (printf "Workspace directory (for projects, code, etc.)%s" (ternary (printf " [%s]" .workspaceDir) "" (hasKey . "workspaceDir"))) -}}
 
 {{- /* CLI Tools - Multi-select */ -}}
 {{- $cliToolChoices := list
@@ -46,19 +79,37 @@
 -}}
 {{- $selectedCliTools := promptMultichoiceOnce . "selectedCliTools" "Select CLI tools to install (use arrow keys + space)" $cliToolChoices $defaultCliTools -}}
 
+{{- /* LSP Server Categories - Multi-select */ -}}
+{{- $lspChoices := list
+    "Python LSPs (pyright, ruff, pylsp)"
+    "JavaScript/TypeScript LSPs"
+    "Go LSP (gopls)"
+    "Lua LSP"
+    "Shell/YAML/Docker/Markdown LSPs"
+-}}
+{{- $defaultLsps := list
+    "Python LSPs (pyright, ruff, pylsp)"
+    "JavaScript/TypeScript LSPs"
+    "Shell/YAML/Docker/Markdown LSPs"
+-}}
+{{- $selectedLsps := list -}}
+{{- if $installLspServers -}}
+{{-   $selectedLsps = promptMultichoiceOnce . "selectedLsps" "Select LSP server categories to install (use arrow keys + space)" $lspChoices $defaultLsps -}}
+{{- end -}}
+
 {{- /* Reverse proxy configuration */ -}}
 {{- $vpsHost := "" -}}
 {{- $vpsUser := "" -}}
 {{- $reverseProxyRemotePort := "2222" -}}
 {{- $reverseProxyLocalPort := "22" -}}
 {{- if $setupReverseProxy -}}
-{{-   $vpsHost = promptStringOnce . "vpsHost" "VPS hostname (e.g., vps.example.com)" -}}
-{{-   $vpsUser = promptStringOnce . "vpsUser" "VPS username (e.g., user_on_vps)" -}}
-{{-   $reverseProxyRemotePort = promptStringOnce . "reverseProxyRemotePort" "Remote port on VPS (default: 2222)" -}}
+{{-   $vpsHost = promptStringOnce . "vpsHost" (printf "VPS hostname (e.g., vps.example.com)%s" (ternary (printf " [%s]" .vpsHost) "" (hasKey . "vpsHost"))) -}}
+{{-   $vpsUser = promptStringOnce . "vpsUser" (printf "VPS username (e.g., user_on_vps)%s" (ternary (printf " [%s]" .vpsUser) "" (hasKey . "vpsUser"))) -}}
+{{-   $reverseProxyRemotePort = promptStringOnce . "reverseProxyRemotePort" (printf "Remote port on VPS (default: 2222)%s" (ternary (printf " [%s]" .reverseProxyRemotePort) "" (hasKey . "reverseProxyRemotePort"))) -}}
 {{-   if eq $reverseProxyRemotePort "" -}}
 {{-     $reverseProxyRemotePort = "2222" -}}
 {{-   end -}}
-{{-   $reverseProxyLocalPort = promptStringOnce . "reverseProxyLocalPort" "Local SSH port (default: 22)" -}}
+{{-   $reverseProxyLocalPort = promptStringOnce . "reverseProxyLocalPort" (printf "Local SSH port (default: 22)%s" (ternary (printf " [%s]" .reverseProxyLocalPort) "" (hasKey . "reverseProxyLocalPort"))) -}}
 {{-   if eq $reverseProxyLocalPort "" -}}
 {{-     $reverseProxyLocalPort = "22" -}}
 {{-   end -}}
@@ -70,37 +121,37 @@
 {{- $opencodeChatgpt := false -}}
 {{- $opencodeGemini := false -}}
 {{- if $installOpencode -}}
-{{-   $opencodeClaudeMax = promptBoolOnce . "opencodeClaudeMax" "Do you have Claude Max (20x mode) subscription?" -}}
+{{-   $opencodeClaudeMax = promptBoolOnce . "opencodeClaudeMax" (printf "Do you have Claude Max (20x mode) subscription?%s" (ternary (printf " [current: %v]" .opencodeClaudeMax) "" (hasKey . "opencodeClaudeMax"))) -}}
 {{-   if not $opencodeClaudeMax -}}
-{{-     $opencodeClaude = promptBoolOnce . "opencodeClaude" "Do you have Claude Pro subscription?" -}}
+{{-     $opencodeClaude = promptBoolOnce . "opencodeClaude" (printf "Do you have Claude Pro subscription?%s" (ternary (printf " [current: %v]" .opencodeClaude) "" (hasKey . "opencodeClaude"))) -}}
 {{-   end -}}
-{{-   $opencodeChatgpt = promptBoolOnce . "opencodeChatgpt" "Do you have ChatGPT subscription?" -}}
-{{-   $opencodeGemini = promptBoolOnce . "opencodeGemini" "Do you have Gemini subscription?" -}}
+{{-   $opencodeChatgpt = promptBoolOnce . "opencodeChatgpt" (printf "Do you have ChatGPT subscription?%s" (ternary (printf " [current: %v]" .opencodeChatgpt) "" (hasKey . "opencodeChatgpt"))) -}}
+{{-   $opencodeGemini = promptBoolOnce . "opencodeGemini" (printf "Do you have Gemini subscription?%s" (ternary (printf " [current: %v]" .opencodeGemini) "" (hasKey . "opencodeGemini"))) -}}
 {{- end -}}
 
 {{- /* Version preferences */ -}}
 {{- $pythonVersion := "3.12" -}}
 {{- $nodeVersion := "22" -}}
 {{- if $installPython -}}
-{{-   $pythonVersion = promptStringOnce . "pythonVersion" "Python version(s) - space or comma separated (e.g., '3.11 3.12 3.13' or just '3.12')" -}}
+{{-   $pythonVersion = promptStringOnce . "pythonVersion" (printf "Python version(s) - space or comma separated (e.g., '3.11 3.12 3.13' or just '3.12')%s" (ternary (printf " [%s]" .pythonVersion) "" (hasKey . "pythonVersion"))) -}}
 {{- end -}}
 {{- if $installNode -}}
-{{-   $nodeVersion = promptStringOnce . "nodeVersion" "Node.js version (e.g., 22)" -}}
+{{-   $nodeVersion = promptStringOnce . "nodeVersion" (printf "Node.js version (e.g., 22)%s" (ternary (printf " [%s]" .nodeVersion) "" (hasKey . "nodeVersion"))) -}}
 {{- end -}}
 
 {{- /* Editor preference */ -}}
-{{- $editor := promptStringOnce . "editor" "Default editor (nvim/vim/code)" -}}
+{{- $editor := promptStringOnce . "editor" (printf "Default editor (nvim/vim/code)%s" (ternary (printf " [%s]" .editor) "" (hasKey . "editor"))) -}}
 
 {{- /* Secrets path (optional - for copying SSH keys, API tokens, etc.) */ -}}
-{{- $secretsPath := promptStringOnce . "secretsPath" "Path to secrets folder (leave empty to skip)" -}}
+{{- $secretsPath := promptStringOnce . "secretsPath" (printf "Path to secrets folder (leave empty to skip)%s" (ternary (printf " [%s]" .secretsPath) "" (hasKey . "secretsPath"))) -}}
 
 {{- /* SSH key generation (if no existing secrets) */ -}}
 {{- $generateSshKey := false -}}
 {{- $sshKeyType := "ed25519" -}}
 {{- if eq $secretsPath "" -}}
-{{-   $generateSshKey = promptBoolOnce . "generateSshKey" "Generate new SSH key pair" -}}
+{{-   $generateSshKey = promptBoolOnce . "generateSshKey" (printf "Generate new SSH key pair%s" (ternary (printf " [current: %v]" .generateSshKey) "" (hasKey . "generateSshKey"))) -}}
 {{-   if $generateSshKey -}}
-{{-     $sshKeyType = promptStringOnce . "sshKeyType" "SSH key type (ed25519/rsa)" -}}
+{{-     $sshKeyType = promptStringOnce . "sshKeyType" (printf "SSH key type (ed25519/rsa)%s" (ternary (printf " [%s]" .sshKeyType) "" (hasKey . "sshKeyType"))) -}}
 {{-   end -}}
 {{- end -}}
 
@@ -114,6 +165,9 @@
     installPython = {{ $installPython }}
     installNode = {{ $installNode }}
     installNeovim = {{ $installNeovim }}
+    nvimConfigRepo = {{ $nvimConfigRepo | quote }}
+    nvimConfigBranch = {{ $nvimConfigBranch | quote }}
+    nvimInstallMethod = {{ $nvimInstallMethod | quote }}
     installTmux = {{ $installTmux }}
     installDirenv = {{ $installDirenv }}
     installLspServers = {{ $installLspServers }}
@@ -125,6 +179,9 @@
     
     # CLI Tools (multi-select)
     selectedCliTools = {{ $selectedCliTools | toToml }}
+    
+    # LSP Server Categories (multi-select)
+    selectedLsps = {{ $selectedLsps | toToml }}
     
     # Reverse proxy configuration
     vpsHost = {{ $vpsHost | quote }}

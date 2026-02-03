@@ -25,6 +25,7 @@ set -euo pipefail
 # {{ $hasGlow := false }}
 # {{ $hasGh := false }}
 # {{ $hasGhDash := false }}
+# {{ $hasAsdf := false }}
 # {{ range $selectedCliTools }}
 # {{   if hasPrefix "fzf" . }}# {{ $hasFzf = true }}# {{ end }}
 # {{   if hasPrefix "ripgrep" . }}# {{ $hasRipgrep = true }}# {{ end }}
@@ -39,10 +40,11 @@ set -euo pipefail
 # {{   if hasPrefix "glow" . }}# {{ $hasGlow = true }}# {{ end }}
 # {{   if hasPrefix "gh -" . }}# {{ $hasGh = true }}# {{ end }}
 # {{   if hasPrefix "gh-dash" . }}# {{ $hasGhDash = true }}# {{ end }}
+# {{   if hasPrefix "asdf" . }}# {{ $hasAsdf = true }}# {{ end }}
 # {{ end }}
 
 # Check if any core tools are selected
-# {{ if not (or $hasFzf $hasRipgrep $hasFd $hasBat $hasEza $hasJq $hasHtop $hasTree $hasZoxide $hasNeofetch $hasGlow $hasGh $hasGhDash) }}
+# {{ if not (or $hasFzf $hasRipgrep $hasFd $hasBat $hasEza $hasJq $hasHtop $hasTree $hasZoxide $hasNeofetch $hasGlow $hasGh $hasGhDash $hasAsdf) }}
 echo "No core CLI tools selected, skipping..."
 exit 0
 # {{ end }}
@@ -324,6 +326,28 @@ if [[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]]; then
 fi
 # {{ end }}
 
+# {{ if $hasAsdf }}
+# Install asdf version manager
+if ! command -v asdf &>/dev/null; then
+    echo "Installing asdf..."
+    if [[ ! -d "$HOME/.asdf" ]]; then
+        git clone https://github.com/asdf-vm/asdf.git "$HOME/.asdf" --branch v0.14.1 2>/dev/null || \
+            git clone https://github.com/asdf-vm/asdf.git "$HOME/.asdf" 2>/dev/null || \
+            echo "⚠️  Failed to clone asdf repository"
+    fi
+    
+    # Source asdf for current session
+    if [[ -f "$HOME/.asdf/asdf.sh" ]]; then
+        . "$HOME/.asdf/asdf.sh"
+        echo "  ✓ asdf installed"
+    else
+        echo "  ⚠️  asdf installation incomplete"
+    fi
+else
+    echo "  asdf already installed"
+fi
+# {{ end }}
+
 # {{- end }}
 
 # Verify installations
@@ -367,6 +391,9 @@ command -v gh &>/dev/null && echo "  - gh: $(gh --version 2>/dev/null | head -1)
 # {{ end }}
 # {{ if $hasGhDash }}
 command -v gh &>/dev/null && gh extension list | grep -q "dlvhdr/gh-dash" && echo "  - gh-dash: installed (gh extension)"
+# {{ end }}
+# {{ if $hasAsdf }}
+command -v asdf &>/dev/null && echo "  - asdf: $(asdf --version 2>/dev/null | head -1)"
 # {{ end }}
 
 echo ""

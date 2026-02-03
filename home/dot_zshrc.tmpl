@@ -114,18 +114,13 @@ zstyle ':fzf-tab:*' show-group full
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 # Zoxide (smart cd)
-{{- if (index . "installCliTools" | default false) }}
 if command -v zoxide &>/dev/null; then
     eval "$(zoxide init zsh)"
 fi
-{{- end }}
 
-# TODO
-# We need to install asdf as a cli tool
-
-{{- if (index . "installAsdf" | default false) }}
-  export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
-{{- end }}
+if command -v asdf &>/dev/null; then
+    export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+fi
 
 # =============================================================================
 # Local Configuration

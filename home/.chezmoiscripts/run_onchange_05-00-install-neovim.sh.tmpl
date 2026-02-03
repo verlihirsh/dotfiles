@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+# chezmoi:template:left-delimiter="# {{" right-delimiter="}}"
+# {{ if not (index . "installNeovim" | default false) }}
+# Skip - Neovim not enabled
+exit 0
+# {{ end }}
+#
+# Install Neovim binary
+# Runs when this template changes or when nvimInstallMethod changes
+#
+# Version: 1.0.0
+# Hash: # {{ index . "nvimInstallMethod" | default "package-manager" | sha256sum }}
+
+set -euo pipefail
+
+INSTALL_METHOD="# {{ index . "nvimInstallMethod" | default "package-manager" }}"
+
+echo "==> Installing Neovim (method: $INSTALL_METHOD)..."
+
+# Check if nvim is already installed and functional
+if command -v nvim &>/dev/null; then
+    CURRENT_VERSION=$(nvim --version | head -1)
+    echo "Neovim already installed: $CURRENT_VERSION"
+    
+    # If using package manager and it's already installed, skip
+    if [[ "$INSTALL_METHOD" == "package-manager" ]]; then
+        echo "Neovim already installed via package manager. Skipping."
+        exit 0
+    fi
+fi
+
+case "$INSTALL_METHOD" in
+    package-manager)
+        echo "Installing Neovim via system package manager..."
+        
+        # {{- if eq .chezmoi.os "darwin" }}
+        if ! command -v brew &>/dev/null; then
+            echo "Error: Homebrew not found. Please install Homebrew first."
+            exit 1
+        fi
+        brew install neovim
+        
+        # {{- else if eq .chezmoi.os "linux" }}
+        # Detect package manager
+        if command -v apt-get &>/dev/null; then
+            echo "Installing via apt..."
+            # Try to get latest Neovim from PPA
+            if command -v add-apt-repository &>/dev/null; then
+                sudo add-apt-repository -y ppa:neovim-ppa/unstable 2>/dev/null || true
+                sudo apt-get update -qq
+            fi
+            sudo apt-get install -y -qq neovim
+            
+        elif command -v dnf &>/dev/null; then
+            echo "Installing via dnf..."
+            sudo dnf install -y -q neovim
+            
+        elif command -v pacman &>/dev/null; then
+            echo "Installing via pacman..."
+            sudo pacman -S --noconfirm --needed neovim
+            
+        else
+            echo "Error: No supported package manager found (apt/dnf/pacman)"
+            exit 1
+        fi
+        # {{- end }}
+        ;;
+        
+    appimage)
+        # {{- if eq .chezmoi.os "darwin" }}
+        echo "AppImage is not available for macOS. Using package manager instead."
+        brew install neovim
+        
+        # {{- else if eq .chezmoi.os "linux" }}
+        echo "Installing Neovim via AppImage..."
+        
+        # Create local bin directory
+        mkdir -p "$HOME/.local/bin"
+        
+        # Download latest stable AppImage
+        NVIM_APPIMAGE="$HOME/.local/bin/nvim.appimage"
+        echo "Downloading Neovim AppImage..."
+        curl -Lo "$NVIM_APPIMAGE" https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
+        chmod +x "$NVIM_APPIMAGE"
+        
+        # Create wrapper script
+        cat > "$HOME/.local/bin/nvim" <<'EOF'
+#!/usr/bin/env bash
+exec "$HOME/.local/bin/nvim.appimage" "$@"
+EOF
+        chmod +x "$HOME/.local/bin/nvim"
+        
+        echo "Neovim AppImage installed to $HOME/.local/bin/nvim"
+        # {{- end }}
+        ;;
+        
+    build-from-source)
+        echo "Building Neovim from source..."
+        
+        # {{- if eq .chezmoi.os "darwin" }}
+        # Ensure build dependencies
+        brew install ninja cmake gettext curl
+        
+        # {{- else if eq .chezmoi.os "linux" }}
+        # Ensure build dependencies
+        if command -v apt-get &>/dev/null; then
+            sudo apt-get install -y -qq ninja-build gettext cmake unzip curl build-essential
+        elif command -v dnf &>/dev/null; then
+            sudo dnf install -y -q ninja-build cmake gcc make unzip gettext curl
+        elif command -v pacman &>/dev/null; then
+            sudo pacman -S --noconfirm --needed base-devel cmake unzip ninja curl gettext
+        fi
+        # {{- end }}
+        
+        # Clone and build
+        BUILD_DIR=$(mktemp -d)
+        echo "Building in $BUILD_DIR..."
+        
+        cd "$BUILD_DIR"
+        git clone https://github.com/neovim/neovim.git --depth 1
+        cd neovim
+        
+        echo "Compiling Neovim (this may take several minutes)..."
+        make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_INSTALL_PREFIX="$HOME/.local"
+        make install
+        
+        # Cleanup
+        cd "$HOME"
+        rm -rf "$BUILD_DIR"
+        
+        echo "Neovim built from source and installed to $HOME/.local/bin/nvim"
+        ;;
+        
+    *)
+        echo "Error: Unknown installation method: $INSTALL_METHOD"
+        exit 1
+        ;;
+esac
+
+# Verify installation
+if ! command -v nvim &>/dev/null; then
+    echo "Error: Neovim installation failed or not in PATH"
+    exit 1
+fi
+
+echo "==> Neovim installed successfully!"
+nvim --version | head -1

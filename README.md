@@ -210,9 +210,50 @@ Edit `~/.config/chezmoi/chezmoi.toml` to change tool versions or settings:
     secretsSourcePath = "/path/to/secrets-template"
 ```
 
-### Re-run Interactive Prompts
+### Changing Configuration After Installation
 
-To change your configuration choices:
+Your tool selections are saved in `~/.config/chezmoi/chezmoi.toml`. You can modify them at any time.
+
+#### View Current Settings
+
+```bash
+# View all current configuration
+chezmoi data | jq '.data'
+
+# Or directly view the config file
+cat ~/.config/chezmoi/chezmoi.toml
+```
+
+#### Modify Settings Interactively
+
+To change any of your selections (tools, versions, features):
+
+```bash
+# Re-prompt for ALL values (shows current values as defaults)
+chezmoi init --prompt
+
+# Then apply the changes
+chezmoi apply
+```
+
+**Note:** Using `--prompt` flag forces chezmoi to re-prompt for all values, even those already configured. Your current values will be shown as defaults.
+
+#### Quick Changes Without Prompts
+
+For automation or quick changes:
+
+```bash
+# Change specific values directly
+chezmoi init --promptBool "installNeovim=false" --promptBool "installPython=true"
+
+# Or edit the config file directly
+nvim ~/.config/chezmoi/chezmoi.toml
+
+# Then apply
+chezmoi apply
+```
+
+#### First-Time Setup (shows prompts by default)
 
 ```bash
 chezmoi init
