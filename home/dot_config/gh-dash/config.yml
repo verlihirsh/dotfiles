@@ -1,0 +1,100 @@
+prSections:
+    - title: My PRs
+      filters: is:open author:@me
+    - title: Mention
+      filters: is:open mentions:@me sort:created-desc
+issuesSections:
+    - title: Tasks
+      filters: is:open label:task
+    - title: My Issues
+      filters: is:open author:@me 
+    - title: All Issues
+      filters: is:open
+repo:
+    branchesRefetchIntervalSeconds: 30
+    prsRefetchIntervalSeconds: 60
+defaults:
+    preview:
+        open: true
+        width: 50
+    prsLimit: 20
+    prApproveComment: LGTM
+    issuesLimit: 20
+    view: issues
+    layout:
+        prs:
+            createdAt:
+                width: 5
+            repo:
+                width: 20
+            author:
+                width: 15
+            authorIcon:
+                hidden: false
+            lines:
+                width: 15
+        issues:
+            createdAt:
+                width: 5
+            repo:
+                width: 15
+            creator:
+                width: 10
+            creatorIcon:
+                hidden: false
+    refetchIntervalMinutes: 30
+keybindings:
+  prs:
+    - key: g
+      name: laygit
+      command: lazygit
+  issues:
+    - key: l
+      name: log
+      command: gh issue comment {{ .IssueNumber }} --repo {{ .RepoName }} --body "$(pr=$(gh issue view {{ .IssueNumber }} --repo {{ .RepoName }} --json closedByPullRequestsReferences -q '.closedByPullRequestsReferences[0].number') gh pr diff "$pr" --repo {{ .RepoName }} --patch | mods "check diff and make meaningfull description of work i've done for comment to the github issue. Return only comment text. No questions, no unrelated info")"
+pager:
+    diff: ""
+confirmQuit: false
+showAuthorIcons: true
+smartFilteringAtLaunch: true
+repoPaths:
+  verlihirsh/*: ~/work/*
+theme:
+    ui:
+        sectionsShowCount: true
+    table:
+        showSeparators: true
+        compact: false
+    colors:
+      text:
+        primary: "#FFFFFF"
+        secondary: "#E6EDF5"
+        inverted: "#3A4B5C"
+        faint: "#B65A4A"
+        warning: "#C83A3A"
+        success: "#177E89"
+        actor: "#E6EDF5"
+      background:
+        selected: "#6FA3FF"
+      border:
+        primary: "#3A4B5C"
+        secondary: "#4FA3A5"
+        faint: "#3A4B5C"
+      inline:
+        icons:
+          newcontributor: "077"
+          contributor: "075"
+          collaborator: "178"
+          member: "178"
+          owner: "178"
+          unknownrole: "178"
+
+    icons:
+      inline:
+        newcontributor: "󰎔"
+        contributor: ""
+        collaborator: ""
+        member: ""
+        owner: ""
+        unknownrole: "󰭙"
+
