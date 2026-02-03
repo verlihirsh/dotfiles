@@ -23,6 +23,8 @@ set -euo pipefail
 # {{ $hasZoxide := false }}
 # {{ $hasNeofetch := false }}
 # {{ $hasGlow := false }}
+# {{ $hasGh := false }}
+# {{ $hasGhDash := false }}
 # {{ range $selectedCliTools }}
 # {{   if hasPrefix "fzf" . }}# {{ $hasFzf = true }}# {{ end }}
 # {{   if hasPrefix "ripgrep" . }}# {{ $hasRipgrep = true }}# {{ end }}
@@ -35,10 +37,12 @@ set -euo pipefail
 # {{   if hasPrefix "zoxide" . }}# {{ $hasZoxide = true }}# {{ end }}
 # {{   if hasPrefix "neofetch" . }}# {{ $hasNeofetch = true }}# {{ end }}
 # {{   if hasPrefix "glow" . }}# {{ $hasGlow = true }}# {{ end }}
+# {{   if hasPrefix "gh -" . }}# {{ $hasGh = true }}# {{ end }}
+# {{   if hasPrefix "gh-dash" . }}# {{ $hasGhDash = true }}# {{ end }}
 # {{ end }}
 
 # Check if any core tools are selected
-# {{ if not (or $hasFzf $hasRipgrep $hasFd $hasBat $hasEza $hasJq $hasHtop $hasTree $hasZoxide $hasNeofetch $hasGlow) }}
+# {{ if not (or $hasFzf $hasRipgrep $hasFd $hasBat $hasEza $hasJq $hasHtop $hasTree $hasZoxide $hasNeofetch $hasGlow $hasGh $hasGhDash) }}
 echo "No core CLI tools selected, skipping..."
 exit 0
 # {{ end }}
@@ -126,6 +130,18 @@ BREW_PACKAGES="$BREW_PACKAGES glow"
 PACMAN_PACKAGES="$PACMAN_PACKAGES glow"
 # {{ end }}
 
+# {{ if $hasGh }}
+BREW_PACKAGES="$BREW_PACKAGES gh"
+APT_PACKAGES="$APT_PACKAGES gh"
+DNF_PACKAGES="$DNF_PACKAGES gh"
+PACMAN_PACKAGES="$PACMAN_PACKAGES github-cli"
+# {{ end }}
+
+# {{ if $hasGhDash }}
+BREW_PACKAGES="$BREW_PACKAGES dlvhdr/tap/gh-dash"
+# gh-dash installed separately via gh extension on Linux
+# {{ end }}
+
 # {{- if eq .chezmoi.os "darwin" }}
 
 # macOS: Use Homebrew
@@ -208,6 +224,26 @@ case "$PKG_MANAGER" in
             sudo apt-get install -y -qq glow || true
         fi
 # {{ end }}
+
+# {{ if $hasGh }}
+        # Install gh via GitHub CLI apt repo
+        if ! command -v gh &>/dev/null; then
+            echo "Installing GitHub CLI (gh)..."
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg 2>/dev/null || true
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq gh || true
+        fi
+# {{ end }}
+
+# {{ if $hasGhDash }}
+        # Install gh-dash as gh extension
+        if command -v gh &>/dev/null && ! gh extension list | grep -q "dlvhdr/gh-dash"; then
+            echo "Installing gh-dash extension..."
+            gh extension install dlvhdr/gh-dash || true
+        fi
+# {{ end }}
         ;;
         
     dnf)
@@ -240,12 +276,44 @@ CHARMREPO
             sudo dnf install -y -q glow || true
         fi
 # {{ end }}
+
+# {{ if $hasGh }}
+        # Install gh via GitHub CLI yum repo
+        if ! command -v gh &>/dev/null; then
+            echo "Installing GitHub CLI (gh)..."
+            sudo tee /etc/yum.repos.d/github-cli.repo >/dev/null <<'GHREPO'
+[gh-cli]
+name=GitHub CLI
+baseurl=https://cli.github.com/packages/rpm
+enabled=1
+gpgcheck=1
+gpgkey=https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x23F3D4EA75716059
+GHREPO
+            sudo dnf install -y -q gh || true
+        fi
+# {{ end }}
+
+# {{ if $hasGhDash }}
+        # Install gh-dash as gh extension
+        if command -v gh &>/dev/null && ! gh extension list | grep -q "dlvhdr/gh-dash"; then
+            echo "Installing gh-dash extension..."
+            gh extension install dlvhdr/gh-dash || true
+        fi
+# {{ end }}
         ;;
         
     pacman)
         echo "Installing CLI tools via pacman..."
         # shellcheck disable=SC2086
         sudo pacman -S --noconfirm --needed $PACMAN_PACKAGES || true
+
+# {{ if $hasGhDash }}
+        # Install gh-dash as gh extension
+        if command -v gh &>/dev/null && ! gh extension list | grep -q "dlvhdr/gh-dash"; then
+            echo "Installing gh-dash extension..."
+            gh extension install dlvhdr/gh-dash || true
+        fi
+# {{ end }}
         ;;
 esac
 
@@ -293,6 +361,12 @@ command -v neofetch &>/dev/null && echo "  - neofetch: installed"
 # {{ end }}
 # {{ if $hasGlow }}
 command -v glow &>/dev/null && echo "  - glow: $(glow --version 2>/dev/null | head -1)"
+# {{ end }}
+# {{ if $hasGh }}
+command -v gh &>/dev/null && echo "  - gh: $(gh --version 2>/dev/null | head -1)"
+# {{ end }}
+# {{ if $hasGhDash }}
+command -v gh &>/dev/null && gh extension list | grep -q "dlvhdr/gh-dash" && echo "  - gh-dash: installed (gh extension)"
 # {{ end }}
 
 echo ""
