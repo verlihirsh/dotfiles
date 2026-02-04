@@ -80,6 +80,9 @@ bind c new-window -c "#{pane_current_path}"
 bind n display-popup -E "nvim ~/scratch.md +"
 bind m display-popup "mods -C"
 
+bind space run-shell "~/work/jelpalette/scripts/toggle.sh"
+bind y setw synchronize-panes
+
 # =============================================================================
 # Status Bar
 # =============================================================================
@@ -125,6 +128,8 @@ set -g @plugin 'sainnhe/tmux-fzf'
 # Persist sessions across restarts
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
+
+set -g @resurrect-capture-pane-contents 'on'
 set -g @plugin 'alexwforsythe/tmux-which-key'
 
 run '~/.tmux/plugins/tpm/tpm'
