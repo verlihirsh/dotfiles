@@ -80,18 +80,13 @@ lsp_diagnostics(filePath="<changed-file>", severity="error")
 ╔═════════════════════════════════════════════════════════════╗
 ║  🚨 MANDATORY FIRST ACTIONS (NON-NEGOTIABLE)               ║
 ╠═════════════════════════════════════════════════════════════╣
-║                                                             ║
-║  1. mem0_search_memory(query="[project/task context]")     ║
-║     → Load previous learnings about this codebase           ║
-║                                                             ║
-║  2. BEFORE ANY FILE READ:                                   ║
+║  1. BEFORE ANY FILE READ:                                   ║
 ║     ✓ Tried LSP tools first? (symbols/goto/refs)           ║
 ║     ✓ Tried grep/ast-grep?                                  ║
 ║     ✓ Verified file < 500 lines?                            ║
 ║     ✓ Absolutely necessary for task?                        ║
 ║                                                             ║
-║  3. AFTER TASK COMPLETION:                                  ║
-║     → mem0_add_memories(text="[save learnings]")           ║
+║  2. AFTER TASK COMPLETION:                                  ║
 ║     → Report token efficiency (see §Token Budget)           ║
 ║     → Report LSP usage vs skipped                           ║
 ║                                                             ║
@@ -213,11 +208,10 @@ After loading instructions, verify you understand:
 ├─────────────────────────────────────────────────────────────┤
 │  Before ANY file read or research operation, verify:        │
 │                                                              │
-│  [ ] 1. Checked mem0_search_memory() for existing context?  │
-│  [ ] 2. Tried LSP tools (symbols/goto/references) first?    │
-│  [ ] 3. Used grep/ast-grep to narrow location?              │
-│  [ ] 4. Verified file is < 500 lines (wc -l)?               │
-│  [ ] 5. This read is absolutely necessary for task scope?   │
+│  [ ] 1. Tried LSP tools (symbols/goto/references) first?    │
+│  [ ] 2. Used grep/ast-grep to narrow location?              │
+│  [ ] 3. Verified file is < 500 lines (wc -l)?               │
+│  [ ] 4. This read is absolutely necessary for task scope?   │
 │                                                              │
 │  ❌ If ANY box unchecked → ABORT READ OPERATION             │
 │  ✅ If ALL boxes checked → Proceed with targeted read       │
@@ -230,29 +224,18 @@ After loading instructions, verify you understand:
 
 | Priority | Tool Type | When to Use | Token Cost |
 |----------|-----------|-------------|------------|
-| **1st** | **mem0 MCP** | Always check first for cached context | Near-zero |
-| **2nd** | **LSP Tools** | Codebase structure, symbols, definitions, references | Very low |
-| **3rd** | **Context7 MCP** | Official documentation lookup | Low |
-| **4th** | **AST-grep** | Pattern-based code search | Low |
-| **5th** | **Grep/ripgrep** | Content search before reading | Medium |
-| **6th** | **Targeted Read** | Small chunks only (< 500 lines) | High |
+| **1nd** | **LSP Tools** | Codebase structure, symbols, definitions, references | Very low |
+| **2rd** | **Context7 MCP** | Official documentation lookup | Low |
+| **3th** | **AST-grep** | Pattern-based code search | Low |
+| **4th** | **Grep/ripgrep** | Content search before reading | Medium |
+| **7th** | **Targeted Read** | Small chunks only (< 500 lines) | High |
 | **FORBIDDEN** | **Raw bash file ops** | `cat`, `head`, `tail`, large file reads | EXTREME |
 
 ---
 
 ### MANDATORY Rules for Agents
 
-#### Rule 1: Always Check Memory First
-```bash
-# BEFORE starting ANY research task
-mem0_search_memory(query="relevant context for current task")
-```
-- Check for previous learnings about this codebase
-- Check for architecture decisions
-- Check for known patterns and conventions
-- **Save findings**: `mem0_add_memories(text="...")`
-
-#### Rule 2: LSP Tools Cheat Sheet (USE THESE AGGRESSIVELY)
+#### Rule 1: LSP Tools Cheat Sheet (USE THESE AGGRESSIVELY)
 | Task | Tool | Example |
 |------|------|---------|
 | Find where symbol is defined | `lsp_goto_definition` | Find `UserService` class definition |
@@ -278,7 +261,7 @@ mem0_search_memory(query="relevant context for current task")
 2. read entire files to find symbols                     // Massive token waste
 ```
 
-#### Rule 3: Use Context7 for External Documentation
+#### Rule 2: Use Context7 for External Documentation
 
 ```typescript
 // CORRECT: Context7 for library docs
@@ -290,7 +273,7 @@ mem0_search_memory(query="relevant context for current task")
 ❌ webfetch("https://react.dev/...")
 ```
 
-#### Rule 4: Grep Before Reading
+#### Rule 3: Grep Before Reading
 
 **ALWAYS search before reading files:**
 
@@ -303,7 +286,7 @@ mem0_search_memory(query="relevant context for current task")
 ❌ read(filePath="large-file.ts")  # 5000 lines = massive tokens
 ```
 
-#### Rule 5: NEVER Read Large Files
+#### Rule 4: NEVER Read Large Files
 
 **Pre-flight file size check:**
 
@@ -319,7 +302,7 @@ bash("du -h path/to/file.ts")  # Get file size
 > 1000 lines  → FORBIDDEN to read raw (use LSP/grep/ast-grep only)
 ```
 
-#### Rule 6: Stay Scoped to Your Task
+#### Rule 5: Stay Scoped to Your Task
 
 **DO NOT:**
 - ❌ "Let me understand the entire architecture first..."
@@ -335,7 +318,7 @@ bash("du -h path/to/file.ts")  # Get file size
 
 | Violation | Token Waste | Correct Approach |
 |-----------|-------------|------------------|
-| Reading 10 files to understand "the codebase" | 50,000+ tokens | mem0 search + LSP symbols + grep for exact task scope |
+| Reading 10 files to understand "the codebase" | 50,000+ tokens | LSP symbols + grep for exact task scope |
 | Reading entire folder structure | 20,000+ tokens | LSP workspace symbols or ast-grep pattern search |
 | Reading config files "just in case" | 5,000+ tokens | Read only when task explicitly requires it |
 
@@ -350,7 +333,6 @@ bash("du -h path/to/file.ts")  # Get file size
 | Read entire file for imports | `lsp_symbols(scope="document")` → shows imports | 80% |
 | Web search for React docs | `context7_query_docs(libraryId="/facebook/react")` | 70% |
 | Read node_modules for API | `context7_resolve_library_id()` + `query_docs()` | 99% |
-| Explore "to understand codebase" | `mem0_search_memory()` + task-specific LSP | 85% |
 
 ---
 
@@ -358,7 +340,6 @@ bash("du -h path/to/file.ts")  # Get file size
 
 Before ANY file read operation, agents MUST verify:
 
-- [ ] **Checked mem0 for existing context?**
 - [ ] **Tried LSP tools first?** (symbols, definitions, references)
 - [ ] **Checked Context7 for external docs?**
 - [ ] **Used grep/ast-grep to narrow down location?**
@@ -376,7 +357,6 @@ Agents should track and report token usage:
 
 ```
 Token Budget Report:
-- mem0 checks: ~100 tokens
 - LSP operations: ~500 tokens
 - grep searches: ~300 tokens
 - Targeted reads (3 files, 200 lines each): ~6,000 tokens
@@ -400,7 +380,6 @@ Understand file structure         → lsp_symbols(document)
 Find symbols across project       → lsp_symbols(workspace)
 Search for code patterns          → ast-grep or grep
 Look up library documentation     → context7 (resolve + query)
-Remember previous context         → mem0_search_memory
 Read specific code sections       → LSP/grep THEN targeted read
 Need to read large file (>500 ln) → DON'T - use LSP/grep instead
 ```
@@ -414,15 +393,13 @@ At task completion, agents MUST report:
 1. **Tools Used**: List of all tools and their purpose
 2. **LSP Usage**: Which LSP tools used, or justification if skipped
 3. **Token Efficiency**: Estimate of tokens saved by avoiding raw reads
-4. **Memory Updates**: What was saved to mem0 for future sessions
-5. **Scope Discipline**: Confirmation that research stayed within task boundaries
+4. **Scope Discipline**: Confirmation that research stayed within task boundaries
 
 Example:
 ```
 ✅ Task Complete: Fixed login validation bug
 
 Tools Used:
-- mem0_search_memory: Found previous auth patterns
 - lsp_symbols: Located AuthService class ✅ LSP USED
 - lsp_find_references: Found all login calls (23 locations) ✅ LSP USED
 - grep: Searched for validation logic (only after LSP)
@@ -437,10 +414,6 @@ Token Efficiency:
 - Avoided reading 8 full files (~40,000 tokens)
 - Used LSP + grep instead (~1,200 tokens)
 - Savings: 97%
-
-Memory Updates:
-- Saved auth validation pattern to mem0
-- Saved common error handling approach
 
 Scope Discipline:
 ✓ Stayed focused on login validation
@@ -484,36 +457,22 @@ go test ./...
 
 **Every new session MUST follow this sequence**:
 
-1. **FIRST ACTION - Check mem0 for context**:
-   ```bash
-   mem0_search_memory(query="[project name or current task context]")
-   ```
-   - Load any previous learnings about this codebase
-   - Check for known patterns, conventions, architecture decisions
-   - If new project: Note that mem0 will be populated during this session
-
-2. **Read core instructions**:
+1 **Read core instructions**:
    - `~/.config/opencode/INSTRUCTIONS.md`
    - `~/.config/opencode/CONFIG_INDEX.md`
 
-3. **Detect project type**:
-   - Check for `go.mod` → Load Go checklist
-   - Check for Metabase usage → Load Metabase docs
-   - Check for Python/JS/Rust → Load future checklists (TBD)
-
-4. **Understand user request**:
+2. **Understand user request**:
    - Read user message completely
    - Identify task type (feature, bug, refactor, docs)
    - Check for ambiguity (ask if needed)
 
-5. **Begin work WITH TOKEN DISCIPLINE AND LSP-FIRST**:
+3. **Begin work WITH TOKEN DISCIPLINE AND LSP-FIRST**:
    - **BEFORE ANY FILE READ**: Run pre-flight check (see Token Optimization Protocol)
    - **BEFORE ANY CODE SEARCH**: Use LSP tools first (see LSP Enforcement Gate)
    - Follow TDD workflow
    - Apply quality standards
    - Use conventional commits
    - Complete task checklist
-   - **AFTER TASK**: Save learnings to mem0 + Report LSP usage
 
 ---
 
