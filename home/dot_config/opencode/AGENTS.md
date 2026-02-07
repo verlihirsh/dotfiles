@@ -457,7 +457,7 @@ go test ./...
 
 **Every new session MUST follow this sequence**:
 
-1 **Read core instructions**:
+1. **Read core instructions**:
    - `~/.config/opencode/INSTRUCTIONS.md`
    - `~/.config/opencode/CONFIG_INDEX.md`
 

@@ -43,6 +43,28 @@ plugins=(
 # Zsh-specific Configuration
 # =============================================================================
 
+# ---- Aria palette (hex) ----
+typeset -gA ARIA
+ARIA=(
+  surface_dark        '#3A4B5C'   # тёмная нейтральная поверхность
+  primary             '#2F5FB3'   # основной бренд / action
+  danger              '#C83A3A'   # критические ошибки
+  primary_soft        '#6FA3FF'   # ховеры, secondary акцент
+  info_muted          '#4FA3A5'   # спокойная информация
+  info_strong         '#177E89'   # подчёркнутая информация
+  warning_soft        '#D98F76'   # мягкие предупреждения
+  danger_muted        '#B65A4A'   # некритичные destructive
+  info_primary        '#3776AB'   # основной информационный
+  surface_accent      '#7FC6C8'   # подсветка блоков
+  accent_emphasis     '#8E3B46'   # эмоциональный акцент
+  warning             '#C97A4A'   # предупреждения
+  primary_alt         '#5B8FD9'   # альтернативный primary
+  highlight           '#F2C94C'   # внимание / выделение
+  surface_light       '#E6EDF5'   # светлая поверхность
+  surface_white       '#FFFFFF'   # чистый белый
+)
+
+
 # History
 HISTSIZE=50000
 SAVEHIST=50000
@@ -67,10 +89,7 @@ bindkey -e
 bindkey "^[[A" history-substring-search-up   # Up arrow
 bindkey "^[[B" history-substring-search-down # Down arrow
 
-zstyle ':completion:*' menu select
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-zstyle ':completion:*:descriptions' format '[%d]'
-
+# zstyle ':completion:*' menu select
 
 wttr() {
   local ttl=600  # seconds (10 min)
@@ -97,18 +116,104 @@ wttr() {
   fi
 }
 
+typeset -ga zle_highlight
+
+zle_highlight=(
+  default:fg=${ARIA[surface_light]}
+  region:fg=${ARIA[surface_white]},bg=${ARIA[primary]}
+  isearch:fg=${ARIA[surface_white]},bg=${ARIA[info_strong]},bold
+  suffix:fg=${ARIA[primary_soft]},bold
+  paste:fg=${ARIA[surface_white]},bg=${ARIA[surface_accent]}
+  special:fg=${ARIA[danger]},bold
+)
+
+
+export LS_COLORS="rs=0:\
+di=38;2;111;163;255:\        # primary_soft (directories)
+ln=38;2;217;143;118:\        # warning_soft (symlinks)
+ex=38;2;79;163;165;1:\       # info_muted + bold (executables)
+fi=38;2;230;237;245:\        # surface_light (regular files)
+pi=38;2;23;126;137:\         # info_strong (named pipes)
+so=38;2;201;122;74:\         # warning (sockets)
+bd=38;2;200;58;58:\          # danger (block device)
+cd=38;2;200;58;58:\          # danger (char device)
+or=38;2;200;58;58:\          # danger (orphan symlink)
+mi=38;2;200;58;58:\          # danger (missing file)
+su=38;2;242;201;76:\         # highlight (setuid)
+sg=38;2;242;201;76:\         # highlight (setgid)
+ow=38;2;242;201;76:\         # highlight (other-writable)
+st=38;2;242;201;76:\         # highlight (sticky)
+tw=38;2;242;201;76:\         # highlight (sticky+other-writable)
+ca=38;2;47;95;179:\          # primary (capability)
+*.tar=38;2;201;122;74:\      # warning (archives)
+*.tgz=38;2;201;122;74:\
+*.gz=38;2;201;122;74:\
+*.zip=38;2;201;122;74:\
+*.bz2=38;2;201;122;74:\
+*.xz=38;2;201;122;74:\
+*.7z=38;2;201;122;74:\
+*.rar=38;2;201;122;74:\
+*.jpg=38;2;127;198;200:\     # surface_accent (media)
+*.jpeg=38;2;127;198;200:\
+*.png=38;2;127;198;200:\
+*.gif=38;2;127;198;200:\
+*.svg=38;2;127;198;200:\
+*.mp3=38;2;127;198;200:\
+*.wav=38;2;127;198;200:\
+*.mp4=38;2;127;198;200:\
+*.mkv=38;2;127;198;200:\
+*.pdf=38;2;55;118;171:\      # info_primary (docs)
+*.md=38;2;55;118;171:\
+*.txt=38;2;230;237;245:\     # surface_light
+*.log=38;2;58;75;92:\        # surface_dark (muted)
+*.sh=38;2;79;163;165:\       # info_muted (scripts)
+*.zsh=38;2;79;163;165:\
+*.py=38;2;55;118;171:\       # info_primary (python)
+*.js=38;2;79;163;165:\       # info_muted (js/node-ish)
+*.ts=38;2;79;163;165:\
+*.rs=38;2;201;122;74:\       # warning (rust-ish)
+*.c=38;2;91;143;217:\        # primary_alt (C/C++)
+*.h=38;2;91;143;217:\
+*.cpp=38;2;91;143;217:\
+*.hpp=38;2;91;143;217:\
+*.java=38;2;142;59;70:\      # accent_emphasis
+*.json=38;2;230;237;245:\    # surface_light
+*.yaml=38;2;230;237;245:\
+*.yml=38;2;230;237;245"
+
+export  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=${ARIA[info_muted]},underline"
 
 # =============================================================================
 # Plugin Configuration
 # =============================================================================
 
 # FZF-tab configuration
-zstyle ':fzf-tab:*' ftb-tmux-popup
+zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
 zstyle ':fzf-tab:*' popup-pad 30 0
-# Fixed popup size: 80% width, 30 lines height (doesn't shrink with content)
+# # Fixed popup size: 80% width, 30 lines height (doesn't shrink with content)
 zstyle ':fzf-tab:*' popup-min-size 80 30
 zstyle ':fzf-tab:*' fzf-min-height 30
 zstyle ':fzf-tab:*' show-group full
+
+# disable sort when completing `git checkout`
+zstyle ':completion:*:git-checkout:*' sort false
+# set descriptions format to enable group support
+# NOTE: don't use escape sequences (like '%F{red}%d%f') here, fzf-tab will ignore them
+zstyle ':completion:*:descriptions' format '[%d]'
+# set list-colors to enable filename colorizing
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+# force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
+zstyle ':completion:*' menu no
+# preview directory's content with eza when completing cd
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+# custom fzf flags
+# NOTE: fzf-tab does not follow FZF_DEFAULT_OPTS by default
+zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 --bind=tab:accept
+# To make fzf-tab follow FZF_DEFAULT_OPTS.
+# NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
+# zstyle ':fzf-tab:*' use-fzf-default-opts yes
+# switch group using `<` and `>`
+zstyle ':fzf-tab:*' switch-group '<' '>'
 
 # Autosuggestions strategy
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
@@ -134,7 +239,5 @@ fi
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 
 # OpenCode stats widget (current month)
-{{- if (index . "installOpencode" | default false) }}
 alias ocstats="~/.config/ocstats.sh"
 alias ocwatch="watch -t -n 60 --color ~/.config/ocstats.sh"
-{{- end }}
