@@ -1,6 +1,8 @@
 {{- /* User identity */ -}}
 {{- $name := promptStringOnce . "name" (printf "Your full name%s" (ternary (printf " [%s]" .name) "" (hasKey . "name"))) -}}
 {{- $email := promptStringOnce . "email" (printf "Your email address%s" (ternary (printf " [%s]" .email) "" (hasKey . "email"))) -}}
+{{- $smtpUsername := promptStringOnce . "smtpUsername" (printf "SMTP username for email sending (leave empty to skip)%s" (ternary (printf " [%s]" .smtpUsername) "" (hasKey . "smtpUsername"))) -}}
+{{- $smtpPassword := promptStringOnce . "smtpPassword" (printf "SMTP password for email sending (leave empty to skip)%s" (ternary (printf " [set]%s" .smtpPassword) "" (hasKey . "smtpPassword"))) -}}
 
 {{- /* Tool selections */ -}}
 {{- $installZsh := promptBoolOnce . "installZsh" (printf "Install zsh + oh-my-zsh%s" (ternary (printf " [current: %v]" .installZsh) "" (hasKey . "installZsh"))) -}}

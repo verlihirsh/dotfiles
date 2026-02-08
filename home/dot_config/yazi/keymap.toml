@@ -1,0 +1,9 @@
+# Yazi keybindings
+# Docs: https://yazi-rs.github.io/docs/configuration/keymap
+
+[mgr]
+prepend_keymap = [
+  # Interactive "Open with" picker
+  # (equivalent to the default `O` / `<S-Enter>` binding)
+  { on = "<C-o>", run = "open --interactive", desc = "Open with (picker)" },
+]
