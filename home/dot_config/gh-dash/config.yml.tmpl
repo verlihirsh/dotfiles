@@ -1,3 +1,11 @@
+{{- $selectedCliTools := index . "selectedCliTools" | default list -}}
+{{- $hasGhDash := false -}}
+{{- range $selectedCliTools -}}
+{{-   if hasPrefix "gh-dash" . -}}
+{{-     $hasGhDash = true -}}
+{{-   end -}}
+{{- end -}}
+{{- if $hasGhDash -}}
 # ~/.config/gh-dash/config.yml - managed by chezmoi
 prSections:
     - title: My PRs
@@ -104,3 +112,4 @@ theme:
         member: ""
         owner: ""
         unknownrole: "󰭙"
+{{- end}}
