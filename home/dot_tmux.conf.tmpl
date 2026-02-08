@@ -78,7 +78,7 @@ bind c new-window -c "#{pane_current_path}"
 #bind f display-popup -E "tmux list-windows -a -F '#{session_name}:#{window_index} │ #{window_name}#{?window_active, ←,}#{?session_attached, [attached],}' | fzf --prompt='tmux > ' --preview='tmux capture-pane -t {1} -p 2>/dev/null | head -30' --preview-window=right:50%:wrap | cut -d' ' -f1 | xargs -I{} tmux switch-client -t {}"
 
 bind b display-popup -E "nvim ~/scratch.md +"
-bind n display-popup -E "numr 2>dev/null"
+bind n display-popup -E "numr"
 bind m display-popup "mods -C"
 
 bind space run-shell "~/work/jelpalette/scripts/toggle.sh"
