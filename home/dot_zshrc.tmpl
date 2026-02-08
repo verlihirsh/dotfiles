@@ -220,7 +220,11 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 # Zoxide (smart cd)
 if command -v zoxide &>/dev/null; then
-    eval "$(zoxide init zsh)"
+    eval "$(zoxide init --cmd cd zsh)"
+fi
+
+if command -v fd &>/dev/null; then
+  alias find="fd"
 fi
 
 if command -v asdf &>/dev/null; then
@@ -229,6 +233,10 @@ fi
 
 if command -v glow &>/dev/null; then
     source <(glow completion zsh)
+fi
+
+if command -v direnv &>/dev/null; then
+    eval "$(direnv hook zsh)"
 fi
 
 # =============================================================================

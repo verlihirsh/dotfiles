@@ -60,13 +60,13 @@ keybindings:
   issues:
     - key: c
       name: create issue
-      command: gh issue create --repo {{"{{ .RepoName }}"}}
+      command: gh issue create --repo {{ "{{ .RepoName }}" }}
     - key: p
       name: create corresponding PR
-      command: gh pr create --repo {{"{{ .RepoName }}"}} --fill --head "$(gh issue view {{"{{ .IssueNumber }}"}} --repo {{"{{ .RepoName }}"}} --json closedByPullRequestsReferences -q '.closedByPullRequestsReferences[0].headRefName')"
+      command: gh pr create --repo {{ "{{ .RepoName }}" }} --fill --head "$(gh issue view {{ "{{ .IssueNumber }}" }} --repo {{ "{{ .RepoName }}" }} --json closedByPullRequestsReferences -q '.closedByPullRequestsReferences[0].headRefName')"
     - key: l
       name: log
-      command: gh issue comment {{"{{ .IssueNumber }}"}} --repo {{"{{ .RepoName }}"}} --body "$(pr=$(gh issue view {{ "{{ .IssueNumber }}" }} --repo {{"{{ .RepoName }}" }} --json closedByPullRequestsReferences -q '.closedByPullRequestsReferences[0].number') gh pr diff "$pr" --repo {{"{{ .RepoName }}"}} --patch | mods "check diff and make meaningfull description of work i've done for comment to the github issue. Return only comment text. No questions, no unrelated info")"
+      command: gh issue comment {{ "{{ .IssueNumber }}" }} --repo {{ "{{ .RepoName }}" }} --body "$(pr=$(gh issue view {{ "{{ .IssueNumber }}" }} --repo {{ "{{ .RepoName }}" }} --json closedByPullRequestsReferences -q '.closedByPullRequestsReferences[0].number') gh pr diff "$pr" --repo {{ "{{ .RepoName }}" }} --patch | mods "check diff and make meaningfull description of work i've done for comment to the github issue. Return only comment text. No questions, no unrelated info")"
 pager:
     diff: ""
 confirmQuit: false
@@ -112,4 +112,4 @@ theme:
         member: ""
         owner: ""
         unknownrole: "󰭙"
-{{- end -}}
+{{- end}}

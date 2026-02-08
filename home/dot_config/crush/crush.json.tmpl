@@ -1,0 +1,94 @@
+{
+  "$schema": "https://charm.land/crush.json",
+  "lsp": {
+    "python": {
+      "command": "pylsp",
+      "enabled": true
+    },
+    "python-pyright": {
+      "command": "pyright-langserver",
+      "args": ["--stdio"],
+      "enabled": false
+    },
+    "typescript": {
+      "command": "typescript-language-server",
+      "args": ["--stdio"],
+      "enabled": true
+    },
+    "javascript": {
+      "command": "typescript-language-server",
+      "args": ["--stdio"],
+      "enabled": true
+    },
+    "go": {
+      "command": "gopls",
+      "enabled": true
+    },
+    "rust": {
+      "command": "rust-analyzer",
+      "enabled": true
+    },
+    "c": {
+      "command": "clangd",
+      "enabled": true
+    },
+    "cpp": {
+      "command": "clangd",
+      "enabled": true
+    },
+    "shell": {
+      "command": "bash-language-server",
+      "args": ["start"],
+      "enabled": true
+    },
+    "yaml": {
+      "command": "yaml-language-server",
+      "args": ["--stdio"],
+      "enabled": true
+    },
+    "docker": {
+      "command": "docker-langserver",
+      "args": ["--stdio"],
+      "enabled": true
+    },
+    "markdown": {
+      "command": "marksman",
+      "args": ["server"],
+      "enabled": true
+    },
+    "ruby": {
+      "command": "ruby-lsp",
+      "enabled": true
+    }
+  },
+  "mcp": {
+    "openmemory": {
+      "type": "sse",
+      "url": "http://localhost:8765/mcp/openmemory/sse/chhlga",
+      "timeout": 120,
+      "disabled": false,
+      "headers": {}
+    }
+  },
+  "permissions": {
+    "allowed_tools": [
+      "view",
+      "ls",
+      "grep",
+      "glob",
+      "agent",
+      "mcp_openmemory_store_memory",
+      "mcp_openmemory_retrieve_memory"
+    ]
+  },
+  "options": {
+    "debug": false,
+    "debug_lsp": false,
+    "compact_mode": false,
+    "disable_metrics": false,
+    "attribution": {
+      "trailer_style": "assisted-by",
+      "generated_with": true
+    }
+  }
+}
