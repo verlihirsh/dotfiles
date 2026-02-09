@@ -91,31 +91,6 @@ bindkey "^[[B" history-substring-search-down # Down arrow
 
 # zstyle ':completion:*' menu select
 
-wttr() {
-  local ttl=600  # seconds (10 min)
-  local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/wttr"
-  local cache_file="$cache_dir/wttr.txt"
-
-  mkdir -p "$cache_dir"
-
-  local now mtime age
-  now=$(date +%s)
-
-  if [[ -f "$cache_file" ]]; then
-    mtime=$(stat -f %m "$cache_file")
-    age=$(( now - mtime ))
-  else
-    age=$(( ttl + 1 ))
-  fi
-
-  if (( age < ttl )); then
-    cat "$cache_file"
-  else
-    curl -fsS 'wttr.in/{Alicante,Reikiavik,Krasnoyarsk}?format=%l:+%c+%t+|+%f+|+%w+(%p)\n' \
-      | tee "$cache_file"
-  fi
-}
-
 typeset -ga zle_highlight
 
 zle_highlight=(
