@@ -46,22 +46,22 @@ plugins=(
 # ---- Aria palette (hex) ----
 typeset -gA ARIA
 ARIA=(
-  surface_dark        '#3A4B5C'   # тёмная нейтральная поверхность
-  primary             '#2F5FB3'   # основной бренд / action
-  danger              '#C83A3A'   # критические ошибки
-  primary_soft        '#6FA3FF'   # ховеры, secondary акцент
-  info_muted          '#4FA3A5'   # спокойная информация
-  info_strong         '#177E89'   # подчёркнутая информация
-  warning_soft        '#D98F76'   # мягкие предупреждения
-  danger_muted        '#B65A4A'   # некритичные destructive
-  info_primary        '#3776AB'   # основной информационный
-  surface_accent      '#7FC6C8'   # подсветка блоков
-  accent_emphasis     '#8E3B46'   # эмоциональный акцент
-  warning             '#C97A4A'   # предупреждения
-  primary_alt         '#5B8FD9'   # альтернативный primary
-  highlight           '#F2C94C'   # внимание / выделение
-  surface_light       '#E6EDF5'   # светлая поверхность
-  surface_white       '#FFFFFF'   # чистый белый
+  surface_dark        '#3A4B5C'
+  primary             '#2F5FB3'
+  danger              '#C83A3A'
+  primary_soft        '#6FA3FF'
+  info_muted          '#4FA3A5'
+  info_strong         '#177E89'
+  warning_soft        '#D98F76'
+  danger_muted        '#B65A4A'
+  info_primary        '#3776AB'
+  surface_accent      '#7FC6C8'
+  accent_emphasis     '#8E3B46'
+  warning             '#C97A4A'
+  primary_alt         '#5B8FD9'
+  highlight           '#F2C94C'
+  surface_light       '#E6EDF5'
+  surface_white       '#FFFFFF'
 )
 
 
@@ -90,31 +90,6 @@ bindkey "^[[A" history-substring-search-up   # Up arrow
 bindkey "^[[B" history-substring-search-down # Down arrow
 
 # zstyle ':completion:*' menu select
-
-wttr() {
-  local ttl=600  # seconds (10 min)
-  local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/wttr"
-  local cache_file="$cache_dir/wttr.txt"
-
-  mkdir -p "$cache_dir"
-
-  local now mtime age
-  now=$(date +%s)
-
-  if [[ -f "$cache_file" ]]; then
-    mtime=$(stat -f %m "$cache_file")
-    age=$(( now - mtime ))
-  else
-    age=$(( ttl + 1 ))
-  fi
-
-  if (( age < ttl )); then
-    cat "$cache_file"
-  else
-    curl -fsS 'wttr.in/{Alicante,Reikiavik,Krasnoyarsk}?format=%l:+%c+%t+|+%f+|+%w+(%p)\n' \
-      | tee "$cache_file"
-  fi
-}
 
 typeset -ga zle_highlight
 
@@ -181,7 +156,7 @@ ca=38;2;47;95;179:\          # primary (capability)
 *.yaml=38;2;230;237;245:\
 *.yml=38;2;230;237;245"
 
-export  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=${ARIA[info_muted]},underline"
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=${ARIA[info_muted]},underline"
 
 # =============================================================================
 # Plugin Configuration
@@ -218,11 +193,6 @@ zstyle ':fzf-tab:*' switch-group '<' '>'
 # Autosuggestions strategy
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
-# Zoxide (smart cd)
-if command -v zoxide &>/dev/null; then
-    eval "$(zoxide init --cmd cd zsh)"
-fi
-
 if command -v fd &>/dev/null; then
   alias find="fd"
 fi
@@ -233,10 +203,6 @@ fi
 
 if command -v glow &>/dev/null; then
     source <(glow completion zsh)
-fi
-
-if command -v direnv &>/dev/null; then
-    eval "$(direnv hook zsh)"
 fi
 
 # =============================================================================
